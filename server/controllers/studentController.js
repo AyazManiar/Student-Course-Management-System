@@ -1,4 +1,5 @@
 const db = require("../config/db.js");
+const bcrypt = require("bcryptjs");
 
 // Get all students
 const getAllStudents = async (req, res) => {
@@ -87,15 +88,62 @@ const getMyProfile = async (req, res) => {
     }
 };
 
-// Add student
-// const addStudent = async (req, res) => {
-//     const { name, email, password, dept_id } = req.body;
-//     try {
-//         const hashedPassword = await bcrypt.
-//     } catch (error) {
-        
-//     }
-// }
+// Add student (Admin only)
+const addStudent = async (req, res) => {
+    const { name, email, password, dept_id } = req.body;
+    
+    // Validation
+    if (!name || !email || !password) {
+        return res.status(400).json({ 
+            success: false, 
+            message: "Name, email, and password are required" 
+        });
+    }
+
+    try {
+        // Check if email already exists
+        const [existingUser] = await db.query(
+            "SELECT id FROM auth_users WHERE email = ?",
+            [email]
+        );
+
+        if (existingUser.length > 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Email already exists" 
+            });
+        }
+
+        // Hash password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Insert into auth_users
+        const [authResult] = await db.query(
+            "INSERT INTO auth_users (email, password, role) VALUES (?, ?, 'student')",
+            [email, hashedPassword]
+        );
+
+        const studentId = authResult.insertId;
+
+        // Insert into students table
+        await db.query(
+            "INSERT INTO students (id, name, dept_id) VALUES (?, ?, ?)",
+            [studentId, name, dept_id || null]
+        );
+
+        res.status(201).json({
+            success: true,
+            message: "Student created successfully",
+            data: { id: studentId, name, email }
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ 
+            success: false, 
+            message: "Internal Server Error" 
+        });
+    }
+};
 
 // Update student
 const updateStudent = async (req, res) => {
@@ -155,6 +203,7 @@ module.exports = {
     getAllStudents,
     getStudent,
     getMyProfile,
+    addStudent,
     updateStudent,
     deleteStudent
 };

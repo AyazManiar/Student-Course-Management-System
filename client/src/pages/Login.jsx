@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 import '../styles/auth.css';
+import loginIllustration from "../assets/illustrations/LoginIllustration.jpg"
 
 const Login = () => {
   const navigate = useNavigate();
@@ -45,51 +46,54 @@ const Login = () => {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
-          <svg className="auth-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <img src={loginIllustration} className="loginIllustration" alt="" />
+          {/* <svg className="auth-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-          </svg>
+          </svg> */}
           <h1 className="auth-title">Welcome Back</h1>
           <p className="auth-subtitle">Sign in to your account</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-group">
-            <label htmlFor="email" className="form-label">Email</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="form-input"
-              placeholder="Enter your email"
-            />
+        <div className='form-container'>
+          <form onSubmit={handleSubmit} className="auth-form">
+            <div className="form-group">
+              <label htmlFor="email" className="form-label">Email</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                className="form-input"
+                placeholder="Enter your email"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="password" className="form-label">Password</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                className="form-input"
+                placeholder="Enter your password"
+              />
+            </div>
+
+            <button type="submit" disabled={loading} className="btn btn-primary btn-full">
+              {loading ? 'Signing in...' : 'Sign In'}
+            </button>
+          </form>
+
+          <div className="auth-footer">
+            <p>Don't have an account? <Link to="/register" className="auth-link">Register here</Link></p>
           </div>
-
-          <div className="form-group">
-            <label htmlFor="password" className="form-label">Password</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              className="form-input"
-              placeholder="Enter your password"
-            />
-          </div>
-
-          <button type="submit" disabled={loading} className="btn btn-primary btn-full">
-            {loading ? 'Signing in...' : 'Sign In'}
-          </button>
-        </form>
-
-        <div className="auth-footer">
-          <p>Don't have an account? <Link to="/register" className="auth-link">Register here</Link></p>
         </div>
-      </div>
+        </div>
     </div>
   );
 };

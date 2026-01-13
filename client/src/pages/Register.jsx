@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 import { departmentAPI } from '../services/api';
 import '../styles/auth.css';
+import loginIllustration from "../assets/illustrations/LoginIllustration.jpg"
 
 const Register = () => {
   const navigate = useNavigate();
@@ -75,15 +76,18 @@ const Register = () => {
   };
 
   return (
-    <div className="auth-container">
+    <div className="auth-container register-form">
       <div className="auth-card">
         <div className="auth-header">
-          <svg className="auth-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <img src={loginIllustration} className='loginIllustration' alt="" />
+          {/* <svg className="auth-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-          </svg>
+          </svg> */}
           <h1 className="auth-title">Create Account</h1>
           <p className="auth-subtitle">Register a new account</p>
         </div>
+
+        <div className='form-container'>
 
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
@@ -111,7 +115,7 @@ const Register = () => {
               required
               className="form-input"
               placeholder="Enter your email"
-            />
+              />
           </div>
 
           <div className="form-group">
@@ -161,7 +165,7 @@ const Register = () => {
               required
               className="form-input"
               placeholder="Enter your password"
-            />
+              />
           </div>
 
           <div className="form-group">
@@ -175,7 +179,7 @@ const Register = () => {
               required
               className="form-input"
               placeholder="Confirm your password"
-            />
+              />
           </div>
 
           <button type="submit" disabled={loading} className="btn btn-primary btn-full">
@@ -186,6 +190,7 @@ const Register = () => {
         <div className="auth-footer">
           <p>Already have an account? <Link to="/login" className="auth-link">Sign in here</Link></p>
         </div>
+      </div>
       </div>
     </div>
   );

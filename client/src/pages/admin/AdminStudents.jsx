@@ -12,6 +12,13 @@ const AdminStudents = () => {
   const [loading, setLoading] = useState(true);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    dept_id: ''
+  });
 
   useEffect(() => {
     fetchData();
@@ -35,6 +42,27 @@ const AdminStudents = () => {
   const handleViewStudent = (student) => {
     setSelectedStudent(student);
     setShowModal(true);
+  };
+
+  const handleAddStudent = () => {
+    setFormData({ name: '', email: '', password: '', dept_id: '' });
+    setShowAddModal(true);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const submitData = {
+        ...formData,
+        dept_id: formData.dept_id || null
+      };
+      await studentAPI.create(submitData);
+      toast.success('Student created successfully!');
+      setShowAddModal(false);
+      await fetchData();
+    } catch (error) {
+      toast.error(error.message || 'Failed to create student');
+    }
   };
 
   const columns = [
@@ -74,6 +102,7 @@ const AdminStudents = () => {
           data={students} 
           columns={columns}
           onRowClick={handleViewStudent}
+          onAdd={handleAddStudent}
         />
       </Card>
 
@@ -102,6 +131,76 @@ const AdminStudents = () => {
             </div>
           </div>
         )}
+      </Modal>
+
+      <Modal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        title="Add New Student"
+      >
+        <form onSubmit={handleSubmit} className="modal-form">
+          <div className="form-group">
+            <label className="form-label">Name *</label>
+            <input
+              type="text"
+              className="form-input"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              required
+              placeholder="Enter student name"
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Email *</label>
+            <input
+              type="email"
+              className="form-input"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              required
+              placeholder="Enter email address"
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Password *</label>
+            <input
+              type="password"
+              className="form-input"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              required
+              placeholder="Enter password"
+              minLength="6"
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Department</label>
+            <select
+              className="form-input"
+              value={formData.dept_id}
+              onChange={(e) => setFormData({ ...formData, dept_id: e.target.value })}
+            >
+              <option value="">Select Department</option>
+              {departments.map((dept) => (
+                <option key={dept.id} value={dept.id}>
+                  {dept.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="modal-actions">
+            <Button type="button" variant="secondary" onClick={() => setShowAddModal(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="primary">
+              Create
+            </Button>
+          </div>
+        </form>
       </Modal>
     </div>
   );

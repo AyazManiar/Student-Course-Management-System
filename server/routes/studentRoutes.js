@@ -1,11 +1,14 @@
 const express = require("express");
-const { getAllStudents, getStudent, getMyProfile, updateStudent, deleteStudent } = require("../controllers/studentController");
+const { getAllStudents, getStudent, getMyProfile, addStudent, updateStudent, deleteStudent } = require("../controllers/studentController");
 const { authMiddleware, authorizeRoles } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
 // GET: /api/students - Get all students (with optional filters)
 router.get("/", authMiddleware, getAllStudents);
+
+// POST: /api/students - Create new student (Admin only)
+router.post("/", authMiddleware, authorizeRoles("admin"), addStudent);
 
 // GET: /api/students/me/profile - Get logged-in student's profile
 router.get("/me/profile", authMiddleware, authorizeRoles("student"), getMyProfile);
