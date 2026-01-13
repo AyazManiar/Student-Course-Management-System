@@ -1,5 +1,5 @@
 const express = require("express");
-const { getAllAdmins, getAdmin, getMyProfile, updateAdmin, deleteAdmin, getSystemStats } = require("../controllers/adminController");
+const { getAllAdmins, getAdmin, getMyProfile, updateAdmin, getSystemStats } = require("../controllers/adminController");
 const { authMiddleware, authorizeRoles } = require("../middleware/authMiddleware");
 
 const router = express.Router();
@@ -20,7 +20,7 @@ router.get("/stats", getSystemStats);
 router.put("/me", updateAdmin);
 
 // DELETE: /api/admins/:id - Delete admin by ID
-router.delete("/:id", deleteAdmin);
+// router.delete("/:id", deleteAdmin);
 
 // GET: /api/admins/:id - Get specific admin by ID
 router.get("/:id", getAdmin);

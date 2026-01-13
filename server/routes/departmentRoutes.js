@@ -4,11 +4,11 @@ const { authMiddleware, authorizeRoles } = require("../middleware/authMiddleware
 
 const router = express.Router();
 
-// GET: /api/departments - Get all departments
-router.get("/", authMiddleware, getAllDept);
+// GET: /api/departments - Get all departments (Public - needed for registration)
+router.get("/", getAllDept);
 
-// GET: /api/departments/:id - Get specific department
-router.get("/:id", authMiddleware, getDept);
+// GET: /api/departments/:id - Get specific department (Public - needed for registration)
+router.get("/:id", getDept);
 
 // POST: /api/departments - Add new department (Admin only)
 router.post("/", authMiddleware, authorizeRoles("admin"), addDept);

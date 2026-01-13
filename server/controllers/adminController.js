@@ -141,6 +141,6 @@ module.exports = {
     getAdmin,
     getMyProfile,
     updateAdmin,
-    deleteAdmin,
+    // deleteAdmin,
     getSystemStats
 };
