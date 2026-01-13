@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import { enrollmentAPI } from '../../services/api';
 import Card from '../../components/common/Card';
 import Table from '../../components/common/Table';
@@ -16,7 +17,7 @@ const AdminEnrollments = () => {
       const response = await enrollmentAPI.getAll();
       setEnrollments(response.data || []);
     } catch (error) {
-      console.error('Failed to fetch enrollments:', error);
+      toast.error('Failed to fetch enrollments');
     } finally {
       setLoading(false);
     }

@@ -154,13 +154,18 @@ const getCurrentUser = async (req, res) => {
         let userDetails;
         if (role === 'student') {
             const [students] = await db.query(
-                "SELECT s.id, s.name, s.dept_id, d.name as dept_name, au.email FROM students s LEFT JOIN departments d ON s.dept_id = d.id JOIN auth_users au ON s.id = au.id WHERE s.id = ?",
+                `SELECT s.id, s.name, s.dept_id, d.name as dept_name, au.email 
+                    FROM students s LEFT JOIN departments d ON s.dept_id = d.id 
+                    JOIN auth_users au ON s.id = au.id 
+                    WHERE s.id = ?`,
                 [userId]
             );
             userDetails = students[0];
         } else if (role === 'teacher') {
             const [teachers] = await db.query(
-                "SELECT t.id, t.name, t.dept_id, d.name as dept_name, au.email FROM teachers t LEFT JOIN departments d ON t.dept_id = d.id JOIN auth_users au ON t.id = au.id WHERE t.id = ?",
+                `SELECT t.id, t.name, t.dept_id, d.name as dept_name, au.email 
+                    FROM teachers t LEFT JOIN departments d ON t.dept_id = d.id 
+                    JOIN auth_users au ON t.id = au.id WHERE t.id = ?`,
                 [userId]
             );
             userDetails = teachers[0];

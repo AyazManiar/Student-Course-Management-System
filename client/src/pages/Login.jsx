@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 import '../styles/auth.css';
 
@@ -10,7 +11,6 @@ const Login = () => {
     email: '',
     password: ''
   });
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -18,24 +18,24 @@ const Login = () => {
       ...formData,
       [e.target.name]: e.target.value
     });
-    setError('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
 
     try {
       const response = await login(formData);
       const role = response.user.role;
       
+      toast.success('Login successful!');
+      
       // Navigate based on role
       if (role === 'student') navigate('/student/dashboard');
       else if (role === 'teacher') navigate('/teacher/dashboard');
       else if (role === 'admin') navigate('/admin/dashboard');
     } catch (err) {
-      setError(err.message || 'Login failed. Please try again.');
+      toast.error(err.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -53,15 +53,6 @@ const Login = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
-          {error && (
-            <div className="alert alert-error">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              {error}
-            </div>
-          )}
-
           <div className="form-group">
             <label htmlFor="email" className="form-label">Email</label>
             <input

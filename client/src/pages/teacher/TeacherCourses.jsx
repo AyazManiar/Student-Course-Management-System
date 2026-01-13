@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import { teacherAPI } from '../../services/api';
 import Card from '../../components/common/Card';
 import Table from '../../components/common/Table';
@@ -19,7 +20,7 @@ const TeacherCourses = () => {
       const response = await teacherAPI.getMyCourses();
       setCourses(response.data || []);
     } catch (error) {
-      console.error('Failed to fetch courses:', error);
+      toast.error('Failed to fetch courses');
     } finally {
       setLoading(false);
     }

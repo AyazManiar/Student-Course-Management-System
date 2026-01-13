@@ -10,6 +10,7 @@ import Register from './pages/Register';
 // Student Pages
 import StudentDashboard from './pages/student/StudentDashboard';
 import StudentCourses from './pages/student/StudentCourses';
+import StudentCourseDetail from './pages/student/StudentCourseDetail';
 
 // Teacher Pages
 import TeacherDashboard from './pages/teacher/TeacherDashboard';
@@ -81,6 +82,16 @@ export const router = createBrowserRouter([
       <ProtectedRoute allowedRoles={['student']}>
         <Layout>
           <StudentCourses />
+        </Layout>
+      </ProtectedRoute>
+    )
+  },
+  {
+    path: '/student/courses/:id',
+    element: (
+      <ProtectedRoute allowedRoles={['student']}>
+        <Layout>
+          <StudentCourseDetail />
         </Layout>
       </ProtectedRoute>
     )

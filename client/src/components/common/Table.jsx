@@ -9,7 +9,7 @@ import {
 import { useState } from 'react';
 import '../../styles/table.css';
 
-const Table = ({ data, columns, onRowClick }) => {
+const Table = ({ data, columns, onRowClick, onAdd }) => {
   const [sorting, setSorting] = useState([]);
   const [globalFilter, setGlobalFilter] = useState('');
 
@@ -48,6 +48,17 @@ const Table = ({ data, columns, onRowClick }) => {
             className="search-input"
           />
         </div>
+        {onAdd && (
+          <button 
+            className="add-btn" 
+            onClick={onAdd}
+            title="Add New"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+          </button>
+        )}
       </div>
 
       <div className="table-wrapper">

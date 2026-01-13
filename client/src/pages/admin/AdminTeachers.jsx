@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import { teacherAPI, departmentAPI } from '../../services/api';
 import Card from '../../components/common/Card';
 import Table from '../../components/common/Table';
 import Modal from '../../components/common/Modal';
+import Button from '../../components/common/Button';
 
 const AdminTeachers = () => {
   const [teachers, setTeachers] = useState([]);
@@ -24,7 +26,7 @@ const AdminTeachers = () => {
       setTeachers(teachersRes.data || []);
       setDepartments(deptsRes.data || []);
     } catch (error) {
-      console.error('Failed to fetch data:', error);
+      toast.error('Failed to fetch data');
     } finally {
       setLoading(false);
     }
@@ -41,9 +43,9 @@ const AdminTeachers = () => {
     try {
       await teacherAPI.delete(id);
       await fetchData();
-      alert('Teacher deleted successfully!');
+      toast.success('Teacher deleted successfully!');
     } catch (error) {
-      alert(error.message || 'Failed to delete teacher');
+      toast.error(error.message || 'Failed to delete teacher');
     }
   };
 
@@ -76,7 +78,9 @@ const AdminTeachers = () => {
             handleDelete(row.original.id);
           }}
         >
-          Delete
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
         </button>
       ),
     },

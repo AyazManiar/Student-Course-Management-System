@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { useAuth } from '../../context/AuthContext';
 import { enrollmentAPI, studentAPI } from '../../services/api';
 import Card from '../../components/common/Card';
@@ -26,7 +27,7 @@ const StudentDashboard = () => {
       setEnrolledCourses(coursesRes.data || []);
       setProfile(profileRes.data);
     } catch (error) {
-      console.error('Failed to fetch data:', error);
+      toast.error('Failed to fetch data');
     } finally {
       setLoading(false);
     }

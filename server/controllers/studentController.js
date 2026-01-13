@@ -4,9 +4,10 @@ const db = require("../config/db.js");
 const getAllStudents = async (req, res) => {
     const { dept_id, course_id } = req.query;
     try {
-        let query = `SELECT s.id, s.name, s.dept_id, d.name as dept_name 
-                    FROM students s LEFT JOIN departments d 
-                    ON s.dept_id = d.id `;
+        let query = `SELECT s.id, s.name, s.dept_id, d.name as dept_name, au.created_at 
+                    FROM students s 
+                    LEFT JOIN departments d ON s.dept_id = d.id
+                    JOIN auth_users au ON au.id = s.id`;
         let params = [];
 
         if (dept_id) {
@@ -85,6 +86,16 @@ const getMyProfile = async (req, res) => {
         res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 };
+
+// Add student
+// const addStudent = async (req, res) => {
+//     const { name, email, password, dept_id } = req.body;
+//     try {
+//         const hashedPassword = await bcrypt.
+//     } catch (error) {
+        
+//     }
+// }
 
 // Update student
 const updateStudent = async (req, res) => {

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 import { departmentAPI } from '../services/api';
 import '../styles/auth.css';
@@ -16,7 +17,6 @@ const Register = () => {
     role: 'student',
     dept_id: ''
   });
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -28,7 +28,7 @@ const Register = () => {
       const response = await departmentAPI.getAll();
       setDepartments(response.data);
     } catch (err) {
-      console.error('Failed to fetch departments:', err);
+      toast.error('Failed to fetch departments');
     }
   };
 
@@ -37,20 +37,18 @@ const Register = () => {
       ...formData,
       [e.target.name]: e.target.value
     });
-    setError('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      toast.error('Passwords do not match');
       return;
     }
 
     if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
+      toast.error('Password must be at least 6 characters');
       return;
     }
 
@@ -63,12 +61,14 @@ const Register = () => {
       const response = await register(registerData);
       const role = response.user.role;
       
+      toast.success('Registration successful!');
+      
       // Navigate based on role
       if (role === 'student') navigate('/student/dashboard');
       else if (role === 'teacher') navigate('/teacher/dashboard');
       else if (role === 'admin') navigate('/admin/dashboard');
     } catch (err) {
-      setError(err.message || 'Registration failed. Please try again.');
+      toast.error(err.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -86,15 +86,6 @@ const Register = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
-          {error && (
-            <div className="alert alert-error">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              {error}
-            </div>
-          )}
-
           <div className="form-group">
             <label htmlFor="name" className="form-label">Full Name</label>
             <input

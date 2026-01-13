@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { courseAPI, enrollmentAPI } from '../../services/api';
 import Card from '../../components/common/Card';
 import Table from '../../components/common/Table';
-import Button from '../../components/common/Button';
 
 const StudentCourses = () => {
+  const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
   const [enrolledCourses, setEnrolledCourses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -23,7 +24,7 @@ const StudentCourses = () => {
       setCourses(allCourses.data || []);
       setEnrolledCourses(enrolled.data || []);
     } catch (error) {
-      console.error('Failed to fetch courses:', error);
+      toast.error('Failed to fetch courses');
     } finally {
       setLoading(false);
     }
@@ -33,32 +34,8 @@ const StudentCourses = () => {
     return enrolledCourses.some(course => course.id === courseId);
   };
 
-  const handleEnroll = async (courseId) => {
-    setActionLoading(courseId);
-    try {
-      await enrollmentAPI.enroll({ course_id: courseId });
-      await fetchData();
-      alert('Successfully enrolled in the course!');
-    } catch (error) {
-      alert(error.message || 'Failed to enroll');
-    } finally {
-      setActionLoading(null);
-    }
-  };
-
-  const handleUnenroll = async (courseId) => {
-    if (!confirm('Are you sure you want to unenroll from this course?')) return;
-    
-    setActionLoading(courseId);
-    try {
-      await enrollmentAPI.unenroll({ course_id: courseId });
-      await fetchData();
-      alert('Successfully unenrolled from the course!');
-    } catch (error) {
-      alert(error.message || 'Failed to unenroll');
-    } finally {
-      setActionLoading(null);
-    }
+  const handleRowClick = (course) => {
+    navigate(`/student/courses/${course.id}`);
   };
 
   const columns = [
@@ -79,24 +56,14 @@ const StudentCourses = () => {
       header: 'Teacher',
     },
     {
-      id: 'actions',
-      header: 'Actions',
+      id: 'status',
+      header: 'Status',
       cell: ({ row }) => {
         const enrolled = isEnrolled(row.original.id);
         return (
-          <Button
-            variant={enrolled ? 'danger' : 'primary'}
-            onClick={(e) => {
-              e.stopPropagation();
-              enrolled ? handleUnenroll(row.original.id) : handleEnroll(row.original.id);
-            }}
-            disabled={actionLoading === row.original.id}
-          >
-            {actionLoading === row.original.id 
-              ? 'Processing...' 
-              : enrolled ? 'Unenroll' : 'Enroll'
-            }
-          </Button>
+          <span className={`badge ${enrolled ? 'badge-success' : 'badge-blue'}`}>
+            {enrolled ? 'Enrolled' : 'Not Enrolled'}
+          </span>
         );
       },
     },
@@ -114,7 +81,7 @@ const StudentCourses = () => {
       </div>
 
       <Card>
-        <Table data={courses} columns={columns} />
+        <Table data={courses} columns={columns} onRowClick={handleRowClick} />
       </Card>
     </div>
   );

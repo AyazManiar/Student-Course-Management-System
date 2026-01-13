@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import { studentAPI, departmentAPI } from '../../services/api';
 import Card from '../../components/common/Card';
 import Table from '../../components/common/Table';
@@ -25,7 +26,7 @@ const AdminStudents = () => {
       setStudents(studentsRes.data || []);
       setDepartments(deptsRes.data || []);
     } catch (error) {
-      console.error('Failed to fetch data:', error);
+      toast.error('Failed to fetch data');
     } finally {
       setLoading(false);
     }

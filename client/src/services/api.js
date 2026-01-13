@@ -54,6 +54,11 @@ export const studentAPI = {
   
   getMyProfile: () => apiCall('/students/me/profile'),
   
+  create: (data) => apiCall('/students', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+
   updateProfile: (data) => apiCall('/students/me', {
     method: 'PUT',
     body: JSON.stringify(data),
@@ -76,6 +81,11 @@ export const teacherAPI = {
   getMyProfile: () => apiCall('/teachers/me/profile'),
   
   getMyCourses: () => apiCall('/teachers/me/courses'),
+  
+  create: (data) => apiCall('/teachers', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
   
   updateProfile: (data) => apiCall('/teachers/me', {
     method: 'PUT',
