@@ -1,5 +1,6 @@
 const express = require("express");
-const { getEnrolledCourses, enrollInCourse, unenrollFromCourse, getAllEnrollments } = require("../controllers/stu_courseController");
+const { getEnrolledCourses, enrollInCourse, enrollOtherInCourse, 
+    unenrollFromCourse, unEnrollOtherFromCourse, getAllEnrollments } = require("../controllers/stu_courseController");
 const { authMiddleware, authorizeRoles } = require("../middleware/authMiddleware");
 
 const router = express.Router();
@@ -13,7 +14,14 @@ router.get("/my-courses", authMiddleware, authorizeRoles("student"), getEnrolled
 // POST: /api/enrollments/enroll - Enroll in a course (Student only)
 router.post("/enroll", authMiddleware, authorizeRoles("student"), enrollInCourse);
 
+// POST: /api/enrollments/enroll - Enroll in a course (Admin only)
+router.post("/enrollOther", authMiddleware, authorizeRoles("admin"), enrollOtherInCourse);
+
 // DELETE: /api/enrollments/unenroll - Unenroll from a course (Student only)
 router.delete("/unenroll", authMiddleware, authorizeRoles("student"), unenrollFromCourse);
+
+
+// DELETE: /api/enrollments/unenroll - Unenroll student from a course (Admin only)
+router.delete("/unenrollOther", authMiddleware, authorizeRoles("admin"), unEnrollOtherFromCourse);
 
 module.exports = router;

@@ -8,7 +8,7 @@ import { router } from './App.jsx'
 import { AuthProvider } from './context/AuthContext'
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+  // <StrictMode>
     <AuthProvider>
       <RouterProvider router={router} />
       <ToastContainer
@@ -24,5 +24,5 @@ createRoot(document.getElementById('root')).render(
         theme="light"
       />
     </AuthProvider>
-  </StrictMode>,
+  // </StrictMode>,
 )

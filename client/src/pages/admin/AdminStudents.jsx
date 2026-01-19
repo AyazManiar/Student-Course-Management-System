@@ -24,16 +24,30 @@ const AdminStudents = () => {
     fetchData();
   }, []);
 
-  const fetchData = async () => {
+  const [fetchDeptLoading, setFetchDeptLoading] = useState(true)
+  const fetchDept = async () => {
+    console.log("Fetch Dept called")
+    if(departments.length != 0) return;
     try {
-      const [studentsRes, deptsRes] = await Promise.all([
-        studentAPI.getAll(),
-        departmentAPI.getAll()
-      ]);
-      setStudents(studentsRes.data || []);
-      setDepartments(deptsRes.data || []);
+      const deptRes = await departmentAPI.getAll()
+      setDepartments(deptRes.data || [])
     } catch (error) {
       toast.error('Failed to fetch data');
+    } finally {
+      setFetchDeptLoading(false);
+    }
+  }
+  const fetchData = async () => {
+    try {
+      console.log('[AdminStudents] Fetching students...');
+      const [studentsRes] = await Promise.all([
+        studentAPI.getAll(),
+      ]);
+      setStudents(studentsRes.data || []);
+      console.log('[AdminStudents] Students loaded:', studentsRes.data?.length || 0);
+    } catch (error) {
+      console.error('[AdminStudents] Failed to fetch students:', error.message);
+      toast.error('Failed to load students');
     } finally {
       setLoading(false);
     }
@@ -47,21 +61,56 @@ const AdminStudents = () => {
   const handleAddStudent = () => {
     setFormData({ name: '', email: '', password: '', dept_id: '' });
     setShowAddModal(true);
+    fetchDept()
   };
+
+  const handleDeleteStudent = async (stu_id) => {
+    const cnfrm = confirm("Are you sure you want to delete this student?")
+    if(!cnfrm) return;
+
+    try {
+      console.log('[AdminStudents] Deleting student:', stu_id);
+      const deleted = await studentAPI.removeStudent(stu_id)
+      if(!deleted.success) {
+        console.error('[AdminStudents] Delete failed:', deleted.message);
+        toast.error('Failed to delete student');
+        return;
+      }
+      // Remove student from client too
+      setStudents((prev) => prev.filter((s) => s.id !== stu_id))
+      console.log('[AdminStudents] Student deleted successfully');
+      toast.success('Student deleted successfully');
+    } catch (error) {
+      console.error('[AdminStudents] Delete error:', error.message);
+      toast.error('Failed to delete student');
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log('[AdminStudents] Creating student:', formData.email);
       const submitData = {
         ...formData,
         dept_id: formData.dept_id || null
       };
-      await studentAPI.create(submitData);
+      const response = await studentAPI.create(submitData);
       toast.success('Student created successfully!');
+      console.log('[AdminStudents] Student created:', response.data.id);
       setShowAddModal(false);
-      await fetchData();
+      
+      // Update local state instead of refetching
+      const deptName = departments.find(d => d.id === parseInt(formData.dept_id))?.name || null;
+      setStudents(prev => [...prev, {
+        id: response.data.id,
+        name: formData.name,
+        dept_id: formData.dept_id || null,
+        dept_name: deptName,
+        created_at: new Date().toISOString()
+      }]);
     } catch (error) {
-      toast.error(error.message || 'Failed to create student');
+      console.error('[AdminStudents] Create error:', error.message);
+      toast.error('Failed to create student - ' + (error.message || 'Please try again'));
     }
   };
 
@@ -84,6 +133,23 @@ const AdminStudents = () => {
       header: 'Registered Date',
       cell: (info) => new Date(info.getValue()).toLocaleDateString(),
     },
+    {
+      id: 'actions',
+      header: 'Actions',
+      cell: ({ row }) => (
+        <button
+          className="btn btn-danger btn-sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDeleteStudent(row.original.id);
+          }}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+        </button>
+      ),
+    },
   ];
 
   if (loading) {
@@ -93,8 +159,16 @@ const AdminStudents = () => {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1 className="page-title">Manage Students</h1>
-        <p className="page-subtitle">View and manage all students</p>
+        <div>
+          <h1 className="page-title">Manage Students</h1>
+          <p className="page-subtitle">View and manage all students</p>
+        </div>
+        <Button onClick={handleAddStudent}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          Add Student
+        </Button>
       </div>
 
       <Card>
@@ -102,7 +176,6 @@ const AdminStudents = () => {
           data={students} 
           columns={columns}
           onRowClick={handleViewStudent}
-          onAdd={handleAddStudent}
         />
       </Card>
 

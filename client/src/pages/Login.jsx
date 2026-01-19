@@ -26,17 +26,20 @@ const Login = () => {
     setLoading(true);
 
     try {
+      console.log('[Login] Submitting login form');
       const response = await login(formData);
       const role = response.user.role;
       
       toast.success('Login successful!');
+      console.log('[Login] Navigating to dashboard:', role);
       
       // Navigate based on role
-      if (role === 'student') navigate('/student/dashboard');
-      else if (role === 'teacher') navigate('/teacher/dashboard');
-      else if (role === 'admin') navigate('/admin/dashboard');
+      if (role === 'student') navigate('/student/dashboard', {replace: true});
+      else if (role === 'teacher') navigate('/teacher/dashboard', {replace: true});
+      else if (role === 'admin') navigate('/admin/dashboard', {replace: true});
     } catch (err) {
-      toast.error(err.message || 'Login failed. Please try again.');
+      console.error('[Login] Login error:', err.message);
+      toast.error('Login failed - ' + (err.message || 'Please check your credentials'));
     } finally {
       setLoading(false);
     }

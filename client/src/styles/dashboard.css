@@ -23,7 +23,7 @@
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(3, minmax(250px, 1fr));
   align-items: center;
   justify-content: space-evenly;
   gap: var(--spacing-lg);
@@ -31,6 +31,7 @@
 }
 
 .stat-card {
+  cursor: pointer;
   background-color: var(--white);
   border-radius: var(--radius-lg);
   /* padding: var(--spacing-xl); */

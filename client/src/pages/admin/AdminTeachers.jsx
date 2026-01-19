@@ -42,7 +42,9 @@ const AdminTeachers = () => {
     
     try {
       await teacherAPI.delete(id);
-      await fetchData();
+      
+      // Update local state instead of refetching
+      setTeachers(prev => prev.filter(t => t.id !== id));
       toast.success('Teacher deleted successfully!');
     } catch (error) {
       toast.error(error.message || 'Failed to delete teacher');

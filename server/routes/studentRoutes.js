@@ -1,5 +1,5 @@
 const express = require("express");
-const { getAllStudents, getStudent, getMyProfile, addStudent, updateStudent, deleteStudent } = require("../controllers/studentController");
+const { getAllStudents, getStudent, getMyProfile, addStudent, updateStudent, deleteStudent, removeStudent } = require("../controllers/studentController");
 const { authMiddleware, authorizeRoles } = require("../middleware/authMiddleware");
 
 const router = express.Router();
@@ -18,6 +18,8 @@ router.put("/me", authMiddleware, authorizeRoles("student"), updateStudent);
 
 // DELETE: /api/students/me - Delete logged-in student's account
 router.delete("/me", authMiddleware, authorizeRoles("student"), deleteStudent);
+
+router.delete("/remove", authMiddleware, authorizeRoles("admin"), removeStudent)
 
 // GET: /api/students/:id - Get specific student by ID
 router.get("/:id", authMiddleware, getStudent);

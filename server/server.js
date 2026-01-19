@@ -6,8 +6,10 @@ const db = require("./config/db.js")
 
 // Load environment variables
 dotenv.config()
+console.log('[Server] Environment variables loaded')
 
 const app = express()
+console.log('[Server] Express app initialized')
 
 // Middleware
 app.use(cors({
@@ -34,6 +36,7 @@ app.use("/api/admins", adminRoutes)
 app.use("/api/departments", departmentRoutes)
 app.use("/api/courses", courseRoutes)
 app.use("/api/enrollments", enrollmentRoutes)
+console.log('[Server] All routes registered')
 
 app.get("/", (req, res) => {
     res.send("Student Course Management System API")
@@ -41,5 +44,9 @@ app.get("/", (req, res) => {
 
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
-    console.log(`Server is listening on: http://localhost:${PORT}`)
+    console.log('='.repeat(50))
+    console.log(`[Server] Successfully started`)
+    console.log(`[Server] Listening on: http://localhost:${PORT}`)
+    console.log(`[Server] Environment: ${process.env.NODE_ENV || 'development'}`)
+    console.log('='.repeat(50))
 })

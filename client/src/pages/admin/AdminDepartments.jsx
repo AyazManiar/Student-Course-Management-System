@@ -20,10 +20,13 @@ const AdminDepartments = () => {
 
   const fetchDepartments = async () => {
     try {
+      console.log('[AdminDepartments] Fetching departments...');
       const response = await departmentAPI.getAll();
       setDepartments(response.data || []);
+      console.log('[AdminDepartments] Departments loaded:', response.data?.length || 0);
     } catch (error) {
-      toast.error('Failed to fetch departments');
+      console.error('[AdminDepartments] Failed to fetch departments:', error.message);
+      toast.error('Failed to load departments');
     } finally {
       setLoading(false);
     }
@@ -47,16 +50,31 @@ const AdminDepartments = () => {
     e.preventDefault();
     try {
       if (editMode) {
+        console.log('[AdminDepartments] Updating department:', selectedDept.id);
         await departmentAPI.update(selectedDept.id, formData);
+        // Update local state for edit
+        setDepartments((prev)=>
+          prev.map(dept =>
+            dept.id === selectedDept.id ? { ...dept, name: formData.name } : dept)
+        )
+        console.log('[AdminDepartments] Department updated successfully');
         toast.success('Department updated successfully!');
       } else {
-        await departmentAPI.create(formData);
+        console.log('[AdminDepartments] Creating department:', formData.name);
+        const response = await departmentAPI.create(formData);
+        // Update local state for create
+        setDepartments(prev => [...prev, {
+          id: response.departmentId,
+          name: formData.name,
+          created_at: new Date().toISOString()
+        }]);
+        console.log('[AdminDepartments] Department created:', response.departmentId);
         toast.success('Department created successfully!');
       }
       setShowModal(false);
-      await fetchDepartments();
     } catch (error) {
-      toast.error(error.message || 'Operation failed');
+      console.error('[AdminDepartments] Save error:', error.message);
+      toast.error(editMode ? 'Failed to update department' : 'Failed to create department');
     }
   };
 
@@ -64,11 +82,16 @@ const AdminDepartments = () => {
     if (!confirm('Are you sure you want to delete this department?')) return;
     
     try {
+      console.log('[AdminDepartments] Deleting department:', id);
       await departmentAPI.delete(id);
-      await fetchDepartments();
+      
+      // Update local state instead of refetching
+      setDepartments(prev => prev.filter(d => d.id !== id));
+      console.log('[AdminDepartments] Department deleted successfully');
       toast.success('Department deleted successfully!');
     } catch (error) {
-      toast.error(error.message || 'Failed to delete department');
+      console.error('[AdminDepartments] Delete error:', error.message);
+      toast.error('Failed to delete department');
     }
   };
 

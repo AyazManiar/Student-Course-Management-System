@@ -19,14 +19,17 @@ const StudentCourseDetail = () => {
 
   const fetchData = async () => {
     try {
+      console.log('[CourseDetail] Fetching course details:', id);
       const [courseRes, enrolledRes] = await Promise.all([
         courseAPI.getById(id),
         enrollmentAPI.getMyEnrolledCourses()
       ]);
       setCourse(courseRes.data);
       setEnrolledCourses(enrolledRes.data || []);
+      console.log('[CourseDetail] Course loaded:', courseRes.data?.name);
     } catch (error) {
-      toast.error('Failed to fetch course details');
+      console.error('[CourseDetail] Failed to load course:', error.message);
+      toast.error('Failed to load course details');
     } finally {
       setLoading(false);
     }
@@ -41,11 +44,16 @@ const StudentCourseDetail = () => {
     
     setActionLoading(true);
     try {
+      console.log('[CourseDetail] Enrolling in course:', id);
       await enrollmentAPI.enroll({ course_id: parseInt(id) });
-      await fetchData();
+      
+      // Update local state instead of refetching
+      setEnrolledCourses(prev => [...prev, course]);
+      console.log('[CourseDetail] Enrollment successful');
       toast.success('Successfully enrolled in the course!');
     } catch (error) {
-      toast.error(error.message || 'Failed to enroll');
+      console.error('[CourseDetail] Enrollment failed:', error.message);
+      toast.error('Failed to enroll - ' + (error.message || 'Please try again'));
     } finally {
       setActionLoading(false);
     }
@@ -56,11 +64,16 @@ const StudentCourseDetail = () => {
     
     setActionLoading(true);
     try {
+      console.log('[CourseDetail] Unenrolling from course:', id);
       await enrollmentAPI.unenroll({ course_id: parseInt(id) });
-      await fetchData();
+      
+      // Update local state instead of refetching
+      setEnrolledCourses(prev => prev.filter(c => c.id !== parseInt(id)));
+      console.log('[CourseDetail] Unenrollment successful');
       toast.success('Successfully unenrolled from the course!');
     } catch (error) {
-      toast.error(error.message || 'Failed to unenroll');
+      console.error('[CourseDetail] Unenrollment failed:', error.message);
+      toast.error('Failed to unenroll - ' + (error.message || 'Please try again'));
     } finally {
       setActionLoading(false);
     }

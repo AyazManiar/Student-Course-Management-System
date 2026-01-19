@@ -17,14 +17,17 @@ const StudentCourses = () => {
 
   const fetchData = async () => {
     try {
+      console.log('[StudentCourses] Fetching courses...');
       const [allCourses, enrolled] = await Promise.all([
         courseAPI.getAll(),
         enrollmentAPI.getMyEnrolledCourses()
       ]);
       setCourses(allCourses.data || []);
       setEnrolledCourses(enrolled.data || []);
+      console.log('[StudentCourses] Courses loaded:', allCourses.data?.length || 0, 'Enrolled:', enrolled.data?.length || 0);
     } catch (error) {
-      toast.error('Failed to fetch courses');
+      console.error('[StudentCourses] Failed to fetch courses:', error.message);
+      toast.error('Failed to load courses');
     } finally {
       setLoading(false);
     }

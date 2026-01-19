@@ -21,9 +21,12 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = async () => {
     try {
+      console.log('[Auth] Checking authentication...');
       const response = await authAPI.getCurrentUser();
       setUser(response.user);
+      console.log('[Auth] User authenticated:', response.user.role);
     } catch (error) {
+      console.log('[Auth] No active session');
       setUser(null);
     } finally {
       setLoading(false);
@@ -31,15 +34,29 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = async (credentials) => {
-    const response = await authAPI.login(credentials);
-    setUser(response.user);
-    return response;
+    try {
+      console.log('[Auth] Login attempt:', credentials.email);
+      const response = await authAPI.login(credentials);
+      setUser(response.user);
+      console.log('[Auth] Login successful:', response.user.role);
+      return response;
+    } catch (error) {
+      console.error('[Auth] Login failed:', error.message);
+      throw error;
+    }
   };
 
   const register = async (userData) => {
-    const response = await authAPI.register(userData);
-    setUser(response.user);
-    return response;
+    try {
+      console.log('[Auth] Register attempt:', userData.email, 'Role:', userData.role);
+      const response = await authAPI.register(userData);
+      setUser(response.user);
+      console.log('[Auth] Registration successful:', response.user.role);
+      return response;
+    } catch (error) {
+      console.error('[Auth] Registration failed:', error.message);
+      throw error;
+    }
   };
 
   const logout = async () => {

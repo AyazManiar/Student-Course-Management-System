@@ -1,8 +1,10 @@
+import { toast } from "react-toastify";
 const API_BASE_URL = 'http://localhost:3000/api';
 
 // Generic API call function
 const apiCall = async (endpoint, options = {}) => {
   try {
+    console.log(`[API] ${options.method || 'GET'} ${endpoint}`);
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       ...options,
       credentials: 'include', // Include cookies
@@ -13,13 +15,19 @@ const apiCall = async (endpoint, options = {}) => {
     });
 
     const data = await response.json();
-
+    
     if (!response.ok) {
+      console.error(`[API Error] ${endpoint}:`, data.message || 'Request failed');
       throw new Error(data.message || 'Something went wrong');
     }
 
+    console.log(`[API Success] ${endpoint}`);
     return data;
   } catch (error) {
+    // Network or parsing error
+    if (!error.message.includes('Something went wrong')) {
+      console.error(`[API Network Error] ${endpoint}:`, error.message);
+    }
     throw error;
   }
 };
@@ -67,6 +75,11 @@ export const studentAPI = {
   deleteAccount: () => apiCall('/students/me', {
     method: 'DELETE',
   }),
+
+  removeStudent: (stu_id) => apiCall("/students/remove", {
+    method: "DELETE",
+    body: JSON.stringify({stu_id})
+  })
 };
 
 // Teacher APIs
@@ -173,7 +186,17 @@ export const enrollmentAPI = {
     body: JSON.stringify(data),
   }),
   
+  enrollOtherInCourse: (data) => apiCall("/enrollments/enrollOther", {
+    method: "POST",
+    body: JSON.stringify(data)
+  }),
+
   unenroll: (data) => apiCall('/enrollments/unenroll', {
+    method: 'DELETE',
+    body: JSON.stringify(data),
+  }),
+  
+  unenrollOther: (data) => apiCall('/enrollments/unenrollOther', {
     method: 'DELETE',
     body: JSON.stringify(data),
   }),

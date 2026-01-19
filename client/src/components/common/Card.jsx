@@ -1,6 +1,6 @@
-const Card = ({ title, children, icon, action, className = '' }) => {
+const Card = ({ title, children, icon, action, onClick,className = '' }) => {
   return (
-    <div className={`card ${className}`}>
+    <div className={`card ${className}`} onClick={onClick}>
       {(title || icon || action) && (
         <div className="card-header">
           <div className="card-title-wrapper">

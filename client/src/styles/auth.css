@@ -58,7 +58,7 @@
 .auth-form {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
+  /* gap: var(--spacing-lg); */
 }
 
 .auth-footer {

@@ -6,12 +6,17 @@ import {
   getPaginationRowModel,
   flexRender 
 } from '@tanstack/react-table';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import '../../styles/table.css';
 
 const Table = ({ data, columns, onRowClick, onAdd }) => {
   const [sorting, setSorting] = useState([]);
   const [globalFilter, setGlobalFilter] = useState('');
+
+  // useEffect(()=>{
+  //   console.log("Table data: "+JSON.stringify(data))
+  // })
+
 
   const table = useReactTable({
     data,

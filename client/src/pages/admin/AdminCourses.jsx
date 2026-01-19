@@ -27,6 +27,7 @@ const AdminCourses = () => {
 
   const fetchData = async () => {
     try {
+      console.log('[AdminCourses] Fetching courses data...');
       const [coursesRes, deptsRes, teachersRes] = await Promise.all([
         courseAPI.getAll(),
         departmentAPI.getAll(),
@@ -35,8 +36,10 @@ const AdminCourses = () => {
       setCourses(coursesRes.data || []);
       setDepartments(deptsRes.data || []);
       setTeachers(teachersRes.data || []);
+      console.log('[AdminCourses] Data loaded - Courses:', coursesRes.data?.length || 0);
     } catch (error) {
-      toast.error('Failed to fetch data');
+      console.error('[AdminCourses] Failed to fetch data:', error.message);
+      toast.error('Failed to load courses data');
     } finally {
       setLoading(false);
     }
@@ -71,16 +74,39 @@ const AdminCourses = () => {
       };
 
       if (editMode) {
+        console.log('[AdminCourses] Updating course:', selectedCourse.id);
         await courseAPI.update(selectedCourse.id, submitData);
+        
+        // Update local state for edit
+        const deptName = departments.find(d => d.id === parseInt(submitData.dept_id))?.name || null;
+        const teacherName = teachers.find(t => t.id === parseInt(submitData.teacher_id))?.name || null;
+        setCourses(prev => prev.map(c => 
+          c.id === selectedCourse.id 
+            ? { ...c, ...submitData, dept_name: deptName, teacher_name: teacherName }
+            : c
+        ));
+        console.log('[AdminCourses] Course updated successfully');
         toast.success('Course updated successfully!');
       } else {
-        await courseAPI.create(submitData);
+        console.log('[AdminCourses] Creating course:', submitData.name);
+        const response = await courseAPI.create(submitData);
+        
+        // Update local state for create
+        const deptName = departments.find(d => d.id === parseInt(submitData.dept_id))?.name || null;
+        const teacherName = teachers.find(t => t.id === parseInt(submitData.teacher_id))?.name || null;
+        setCourses(prev => [...prev, {
+          id: response.courseId,
+          ...submitData,
+          dept_name: deptName,
+          teacher_name: teacherName
+        }]);
+        console.log('[AdminCourses] Course created:', response.courseId);
         toast.success('Course created successfully!');
       }
       setShowModal(false);
-      await fetchData();
     } catch (error) {
-      toast.error(error.message || 'Operation failed');
+      console.error('[AdminCourses] Save error:', error.message);
+      toast.error(editMode ? 'Failed to update course' : 'Failed to create course');
     }
   };
 
@@ -88,11 +114,16 @@ const AdminCourses = () => {
     if (!confirm('Are you sure you want to delete this course?')) return;
     
     try {
+      console.log('[AdminCourses] Deleting course:', id);
       await courseAPI.delete(id);
-      await fetchData();
+      
+      // Update local state instead of refetching
+      setCourses(prev => prev.filter(c => c.id !== id));
+      console.log('[AdminCourses] Course deleted successfully');
       toast.success('Course deleted successfully!');
     } catch (error) {
-      toast.error(error.message || 'Failed to delete course');
+      console.error('[AdminCourses] Delete error:', error.message);
+      toast.error('Failed to delete course');
     }
   };
 

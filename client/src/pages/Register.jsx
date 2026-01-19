@@ -26,10 +26,13 @@ const Register = () => {
 
   const fetchDepartments = async () => {
     try {
+      console.log('[Register] Fetching departments...');
       const response = await departmentAPI.getAll();
       setDepartments(response.data);
+      console.log('[Register] Departments loaded:', response.data.length);
     } catch (err) {
-      toast.error('Failed to fetch departments');
+      console.error('[Register] Failed to load departments:', err.message);
+      toast.error('Failed to load departments');
     }
   };
 
@@ -44,11 +47,13 @@ const Register = () => {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
+      console.log('[Register] Validation failed: Passwords do not match');
       toast.error('Passwords do not match');
       return;
     }
 
     if (formData.password.length < 6) {
+      console.log('[Register] Validation failed: Password too short');
       toast.error('Password must be at least 6 characters');
       return;
     }
@@ -56,6 +61,7 @@ const Register = () => {
     setLoading(true);
 
     try {
+      console.log('[Register] Submitting registration form:', formData.role);
       const { confirmPassword, ...registerData } = formData;
       if (!registerData.dept_id) delete registerData.dept_id;
       
@@ -63,13 +69,15 @@ const Register = () => {
       const role = response.user.role;
       
       toast.success('Registration successful!');
+      console.log('[Register] Navigating to dashboard:', role);
       
       // Navigate based on role
-      if (role === 'student') navigate('/student/dashboard');
-      else if (role === 'teacher') navigate('/teacher/dashboard');
-      else if (role === 'admin') navigate('/admin/dashboard');
+      if (role === 'student') navigate('/student/dashboard', {replace: true});
+      else if (role === 'teacher') navigate('/teacher/dashboard', {replace: true});
+      else if (role === 'admin') navigate('/admin/dashboard', {replace: true});
     } catch (err) {
-      toast.error(err.message || 'Registration failed. Please try again.');
+      console.error('[Register] Registration error:', err.message);
+      toast.error('Registration failed - ' + (err.message || 'Please try again'));
     } finally {
       setLoading(false);
     }
