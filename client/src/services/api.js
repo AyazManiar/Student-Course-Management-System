@@ -53,9 +53,8 @@ export const authAPI = {
 
 // Student APIs
 export const studentAPI = {
-  getAll: (params = {}) => {
-    const query = new URLSearchParams(params).toString();
-    return apiCall(`/students${query ? `?${query}` : ''}`);
+  getAll: () => {
+    return apiCall(`/students`);
   },
   
   getById: (id) => apiCall(`/students/${id}`),
@@ -84,9 +83,8 @@ export const studentAPI = {
 
 // Teacher APIs
 export const teacherAPI = {
-  getAll: (params = {}) => {
-    const query = new URLSearchParams(params).toString();
-    return apiCall(`/teachers${query ? `?${query}` : ''}`);
+  getAll: () => {
+    return apiCall(`/teachers`);
   },
   
   getById: (id) => apiCall(`/teachers/${id}`),
@@ -153,9 +151,8 @@ export const departmentAPI = {
 
 // Course APIs
 export const courseAPI = {
-  getAll: (params = {}) => {
-    const query = new URLSearchParams(params).toString();
-    return apiCall(`/courses${query ? `?${query}` : ''}`);
+  getAll: () => {
+    return apiCall(`/courses`);
   },
   
   getById: (id) => apiCall(`/courses/${id}`),

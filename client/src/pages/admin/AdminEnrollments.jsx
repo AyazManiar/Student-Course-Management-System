@@ -4,7 +4,7 @@ import { courseAPI, enrollmentAPI, studentAPI } from "../../services/api";
 import Modal from "../../components/common/Modal";
 import Button from "../../components/common/Button";
 import Card from "../../components/common/Card";
-import Table from "../../components/common/Table";
+import '../../styles/table.css';
 
 const AdminEnrollments = () => {
   const [enrollments, setEnrollments] = useState([]);
@@ -15,6 +15,8 @@ const AdminEnrollments = () => {
   const [formData, setformData] = useState({})
   const [formLoading, setFormLoading] = useState(false)
   const [showAddModal, setShowAddModal] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
 
   useEffect(() => {
     fetchEnrollments();
@@ -96,57 +98,19 @@ const AdminEnrollments = () => {
     }
   };
 
-  const columns = [
-    {
-      accessorKey: "id",
-      header: "ID",
-    },
-    {
-      accessorKey: "student_name",
-      header: "Student Name",
-    },
-    {
-      accessorKey: "course_name",
-      header: "Course Name",
-    },
-    {
-      accessorKey: "enrolled_at",
-      header: "Enrollment Date",
-      cell: (info) => new Date(info.getValue()).toLocaleString(),
-    },
-    {
-      id: "unenroll",
-      header: "Unenroll",
-      cell: ({ row }) => (
-        <button
-          className="btn btn-danger btn-sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            unEnrollStudent(row.original.id);
-          }}
-        >
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            width="16"
-            height="16"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-            />
-          </svg>
-        </button>
-      ),
-    },
-  ];
-
   if (loading) {
     return <div className="loading">Loading...</div>;
   }
+
+  // Calculate pagination
+  const totalPages = Math.ceil(enrollments.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentEnrollments = enrollments.slice(startIndex, endIndex);
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
 
   return (
     <div className="page-container">
@@ -155,19 +119,111 @@ const AdminEnrollments = () => {
           <h1 className="page-title">All Enrollments</h1>
           <p className="page-subtitle">View all student enrollments</p>
         </div>
-        <Button onClick={() => setShowAddModal(true)}>
+        {/* <Button onClick={() => setShowAddModal(true)}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
           Add Enrollment
-        </Button>
+        </Button> */}
       </div>
 
       <Card>
-        <Table
-          data={enrollments}
-          columns={columns}
-        />
+        <div className="table-container">
+          <div className="table-wrapper">
+            <table className="table">
+              <thead className="table-head">
+                <tr>
+                  <th className="table-header">ID</th>
+                  <th className="table-header">STUDENT NAME</th>
+                  <th className="table-header">COURSE NAME</th>
+                  <th className="table-header">ENROLLMENT DATE</th>
+                  <th className="table-header">UNENROLL</th>
+                </tr>
+              </thead>
+              <tbody className="table-body">
+                {currentEnrollments && currentEnrollments.length > 0 ? (
+                  currentEnrollments.map((enrollment) => (
+                    <tr key={enrollment.id} className="table-row">
+                      <td className="table-cell">{enrollment.id}</td>
+                      <td className="table-cell">{enrollment.student_name}</td>
+                      <td className="table-cell">{enrollment.course_name}</td>
+                      <td className="table-cell">{new Date(enrollment.enrolled_at).toLocaleString()}</td>
+                      <td className="table-cell">
+                        <button
+                          className="btn btn-danger btn-sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            unEnrollStudent(enrollment.id);
+                          }}
+                        >
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            width="16"
+                            height="16"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            />
+                          </svg>
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5" className="table-cell" style={{ textAlign: 'center', padding: '2rem' }}>
+                      No enrollments available
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="table-pagination">
+            <div className="pagination-info">
+              Showing page {currentPage} of {totalPages || 1}
+            </div>
+            <div className="pagination-controls">
+              <button
+                onClick={() => handlePageChange(1)}
+                disabled={currentPage === 1}
+                className="pagination-btn"
+              >
+                {'<<'}
+              </button>
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="pagination-btn"
+              >
+                {'<'}
+              </button>
+              <span className="pagination-page">
+                Page {currentPage} of {totalPages || 1}
+              </span>
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage >= totalPages}
+                className="pagination-btn"
+              >
+                {'>'}
+              </button>
+              <button
+                onClick={() => handlePageChange(totalPages)}
+                disabled={currentPage >= totalPages}
+                className="pagination-btn"
+              >
+                {'>>'}
+              </button>
+            </div>
+          </div>
+        </div>
       </Card>
 
       <Modal

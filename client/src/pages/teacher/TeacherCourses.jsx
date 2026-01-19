@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { teacherAPI } from '../../services/api';
 import Card from '../../components/common/Card';
-import Table from '../../components/common/Table';
 import Modal from '../../components/common/Modal';
+import '../../styles/table.css';
 
 const TeacherCourses = () => {
   const [courses, setCourses] = useState([]);
@@ -31,22 +31,6 @@ const TeacherCourses = () => {
     setShowModal(true);
   };
 
-  const columns = [
-    {
-      accessorKey: 'name',
-      header: 'Course Name',
-    },
-    {
-      accessorKey: 'description',
-      header: 'Description',
-    },
-    {
-      accessorKey: 'dept_name',
-      header: 'Department',
-      cell: (info) => info.getValue() || 'Not Assigned',
-    },
-  ];
-
   if (loading) {
     return <div className="loading">Loading...</div>;
   }
@@ -60,11 +44,32 @@ const TeacherCourses = () => {
 
       <Card>
         {courses.length > 0 ? (
-          <Table 
-            data={courses} 
-            columns={columns}
-            onRowClick={handleViewCourse}
-          />
+          <div className="table-container">
+            <div className="table-wrapper">
+              <table className="table">
+                <thead className="table-head">
+                  <tr>
+                    <th className="table-header">COURSE NAME</th>
+                    <th className="table-header">DESCRIPTION</th>
+                    <th className="table-header">DEPARTMENT</th>
+                  </tr>
+                </thead>
+                <tbody className="table-body">
+                  {courses.map((course) => (
+                    <tr 
+                      key={course.id} 
+                      className="table-row"
+                      onClick={() => handleViewCourse(course)}
+                    >
+                      <td className="table-cell">{course.name}</td>
+                      <td className="table-cell">{course.description}</td>
+                      <td className="table-cell">{course.dept_name || 'Not Assigned'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         ) : (
           <div className="empty-state">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">

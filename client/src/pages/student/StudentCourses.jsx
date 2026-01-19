@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { courseAPI, enrollmentAPI } from '../../services/api';
 import Card from '../../components/common/Card';
-import Table from '../../components/common/Table';
+import '../../styles/table.css';
 
 const StudentCourses = () => {
   const navigate = useNavigate();
@@ -40,38 +40,6 @@ const StudentCourses = () => {
   const handleRowClick = (course) => {
     navigate(`/student/courses/${course.id}`);
   };
-
-  const columns = [
-    {
-      accessorKey: 'name',
-      header: 'Course Name',
-    },
-    {
-      accessorKey: 'description',
-      header: 'Description',
-    },
-    {
-      accessorKey: 'dept_name',
-      header: 'Department',
-    },
-    {
-      accessorKey: 'teacher_name',
-      header: 'Teacher',
-    },
-    {
-      id: 'status',
-      header: 'Status',
-      cell: ({ row }) => {
-        const enrolled = isEnrolled(row.original.id);
-        return (
-          <span className={`badge ${enrolled ? 'badge-success' : 'badge-blue'}`}>
-            {enrolled ? 'Enrolled' : 'Not Enrolled'}
-          </span>
-        );
-      },
-    },
-  ];
-
   if (loading) {
     return <div className="loading">Loading...</div>;
   }
@@ -84,7 +52,48 @@ const StudentCourses = () => {
       </div>
 
       <Card>
-        <Table data={courses} columns={columns} onRowClick={handleRowClick} />
+        <div className="table-container">
+          <div className="table-wrapper">
+            <table className="table">
+              <thead className="table-head">
+                <tr>
+                  <th className="table-header">COURSE NAME</th>
+                  <th className="table-header">DESCRIPTION</th>
+                  <th className="table-header">DEPARTMENT</th>
+                  <th className="table-header">TEACHER</th>
+                  <th className="table-header">STATUS</th>
+                </tr>
+              </thead>
+              <tbody className="table-body">
+                {courses && courses.length > 0 ? (
+                  courses.map((course) => (
+                    <tr 
+                      key={course.id} 
+                      className="table-row"
+                      onClick={() => handleRowClick(course)}
+                    >
+                      <td className="table-cell">{course.name}</td>
+                      <td className="table-cell">{course.description}</td>
+                      <td className="table-cell">{course.dept_name}</td>
+                      <td className="table-cell">{course.teacher_name}</td>
+                      <td className="table-cell">
+                        <span className={`badge ${isEnrolled(course.id) ? 'badge-success' : 'badge-blue'}`}>
+                          {isEnrolled(course.id) ? 'Enrolled' : 'Not Enrolled'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5" className="table-cell" style={{ textAlign: 'center', padding: '2rem' }}>
+                      No courses available
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </Card>
     </div>
   );

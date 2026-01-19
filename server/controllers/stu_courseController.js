@@ -1,5 +1,32 @@
 const db = require("../config/db");
 
+// Get all enrollments (Admin only)
+const getAllEnrollments = async (req, res) => {
+    console.log(`[GetAllEnrollments] Fetching all enrollments`);
+    try {
+        const query = `
+            SELECT e.id, e.student_id, s.name as student_name, 
+            e.course_id, c.name as course_name, e.enrolled_at
+            FROM enrollments e
+            JOIN students s ON e.student_id = s.id
+            JOIN courses c ON e.course_id = c.id
+            ORDER BY e.enrolled_at DESC
+        `;
+        const [data] = await db.query(query);
+        console.log(`[GetAllEnrollments] Success - Found ${data.length} enrollments`);
+
+        res.status(200).json({
+            success: true,
+            message: "Fetched all enrollments",
+            data: data
+        });
+    } catch (error) {
+        console.error(`[GetAllEnrollments] Error fetching enrollments:`, error.message);
+        console.error(`[GetAllEnrollments] Stack:`, error.stack);
+        res.status(500).json({ success: false, message: "Failed to fetch enrollments - Internal Server Error" });
+    }
+};
+
 // Get enrolled courses for logged-in student
 const getEnrolledCourses = async (req, res) => {
     const student_id = req.user.id;
@@ -176,38 +203,11 @@ const unEnrollOtherFromCourse = async (req, res) => {
     }
 }
 
-// Get all enrollments (Admin only)
-const getAllEnrollments = async (req, res) => {
-    console.log(`[GetAllEnrollments] Fetching all enrollments`);
-    try {
-        const query = `
-            SELECT e.id, e.student_id, s.name as student_name, 
-            e.course_id, c.name as course_name, e.enrolled_at
-            FROM enrollments e
-            JOIN students s ON e.student_id = s.id
-            JOIN courses c ON e.course_id = c.id
-            ORDER BY e.enrolled_at DESC
-        `;
-        const [data] = await db.query(query);
-        console.log(`[GetAllEnrollments] Success - Found ${data.length} enrollments`);
-
-        res.status(200).json({
-            success: true,
-            message: "Fetched all enrollments",
-            data: data
-        });
-    } catch (error) {
-        console.error(`[GetAllEnrollments] Error fetching enrollments:`, error.message);
-        console.error(`[GetAllEnrollments] Stack:`, error.stack);
-        res.status(500).json({ success: false, message: "Failed to fetch enrollments - Internal Server Error" });
-    }
-};
-
 module.exports = {
+    getAllEnrollments,
     getEnrolledCourses,
     enrollInCourse,
     enrollOtherInCourse,
     unenrollFromCourse,
-    unEnrollOtherFromCourse,
-    getAllEnrollments
+    unEnrollOtherFromCourse  
 };

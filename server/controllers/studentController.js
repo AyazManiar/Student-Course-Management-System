@@ -3,33 +3,14 @@ const bcrypt = require("bcryptjs");
 
 // Get all students
 const getAllStudents = async (req, res) => {
-    const { dept_id, course_id } = req.query;
-    console.log(`[GetAllStudents] Fetching students - Filters: dept_id=${dept_id || 'none'}, course_id=${course_id || 'none'}`);
+    console.log(`[GetAllStudents] Fetching students`);
     try {
         let query = `SELECT s.id, s.name, s.dept_id, d.name as dept_name, au.created_at 
                     FROM students s 
                     LEFT JOIN departments d ON s.dept_id = d.id
                     JOIN auth_users au ON au.id = s.id`;
-        let params = [];
 
-        if (dept_id) {
-            query += " WHERE s.dept_id = ?";
-            params.push(dept_id);
-            console.log(`[GetAllStudents] Filtering by department ID: ${dept_id}`);
-        }
-
-        if (course_id) {
-            // Get students enrolled in a specific course
-            query = `SELECT DISTINCT s.id, s.name, s.dept_id, d.name as dept_name 
-                     FROM students s 
-                     LEFT JOIN departments d ON s.dept_id = d.id 
-                     JOIN enrollments e ON s.id = e.student_id
-                     WHERE e.course_id = ?`;
-            params = [course_id];
-            console.log(`[GetAllStudents] Filtering by course ID: ${course_id}`);
-        }
-
-        const [data] = await db.query(query, params);
+        const [data] = await db.query(query);
         console.log(`[GetAllStudents] Success - Found ${data.length} students`);
         res.status(200).json({
             success: true,

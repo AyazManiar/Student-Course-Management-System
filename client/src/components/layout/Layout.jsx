@@ -16,7 +16,7 @@ const Layout = ({ children }) => {
     <div className="layout">
       <Navbar toggleSidebar={toggleSidebar} />
       <div className="layout-body">
-        {user && <Sidebar isExpanded={isExpanded} setIsExpanded={setIsExpanded} />}
+        {user && <Sidebar isExpanded={isExpanded} setIsExpanded={setIsExpanded}/>}
         <main className="main-content">
           {children}
         </main>

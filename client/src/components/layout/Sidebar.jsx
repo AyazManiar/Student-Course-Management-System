@@ -117,7 +117,10 @@ const Sidebar = ({ isExpanded, setIsExpanded }) => {
     <aside 
       className={`sidebar ${isExpanded ? 'expanded' : ''}`}
       onMouseEnter={() => setIsExpanded(true)}
-      onMouseLeave={() => setIsExpanded(false)}
+      onMouseLeave={() => {
+        setIsExpanded(false)
+      }}
+        
     >
       <nav className="sidebar-nav">
         {navItems.map((item) => (

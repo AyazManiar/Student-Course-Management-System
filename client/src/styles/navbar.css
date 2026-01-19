@@ -91,8 +91,9 @@
 }
 
 .navbar-user-avatar {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
+  padding: 2px;
   border-radius: 50%;
   background-color: var(--light-blue);
   color: var(--primary-blue);

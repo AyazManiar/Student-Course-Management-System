@@ -76,8 +76,28 @@
   text-decoration: underline;
 }
 
+.pwd-input {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 7px;
+  padding: 2px 7px 2px 2px;
+  border: 1px solid rgba(128, 128, 128, 0.472);
+  border-radius: 7px;
+}
+.pwd-input > input {
+  border: none;
+  outline: none;
+}
+.pwd-input img {
+  cursor: pointer;
+}
+
+
 @media (max-width: 480px) {
   .auth-card {
     padding: var(--spacing-xl);
   }
 }
+

@@ -2,26 +2,13 @@ const db = require("../config/db.js");
 
 // Get all courses
 const getCourses = async (req, res) => {
-  const { dept_id, teacher_id } = req.query;
-  console.log(`[GetCourses] Fetching courses - Filters: dept_id=${dept_id || 'none'}, teacher_id=${teacher_id || 'none'}`);
+  console.log(`[GetCourses] Fetching courses`);
 
   try {
     let query = `SELECT c.*, d.name as dept_name, t.name as teacher_name 
                   FROM courses c LEFT JOIN departments d ON c.dept_id = d.id 
                   LEFT JOIN teachers t ON c.teacher_id = t.id`;
-    let params = [];
-
-    if (dept_id) {
-      query += " WHERE c.dept_id = ?";
-      params.push(dept_id);
-      console.log(`[GetCourses] Filtering by department ID: ${dept_id}`);
-    } else if (teacher_id) {
-      query += " WHERE c.teacher_id = ?";
-      params.push(teacher_id);
-      console.log(`[GetCourses] Filtering by teacher ID: ${teacher_id}`);
-    }
-
-    const [rows] = await db.query(query, params);
+    const [rows] = await db.query(query);
     console.log(`[GetCourses] Success - Found ${rows.length} courses`);
 
     return res.status(200).json({

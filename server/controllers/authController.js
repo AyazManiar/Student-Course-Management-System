@@ -122,10 +122,10 @@ const login = async (req, res) => {
         let userDetails;
         console.log(`[Login] Fetching ${user.role} details`);
         if (user.role === 'student') {
-            const [students] = await db.query("SELECT name, dept_id FROM students WHERE id = ?", [user.id]);
+            const [students] = await db.query("SELECT name FROM students WHERE id = ?", [user.id]);
             userDetails = students[0];
         } else if (user.role === 'teacher') {
-            const [teachers] = await db.query("SELECT name, dept_id FROM teachers WHERE id = ?", [user.id]);
+            const [teachers] = await db.query("SELECT name FROM teachers WHERE id = ?", [user.id]);
             userDetails = teachers[0];
         } else if (user.role === 'admin') {
             const [admins] = await db.query("SELECT name FROM admins WHERE id = ?", [user.id]);
@@ -191,8 +191,8 @@ const getCurrentUser = async (req, res) => {
         if (role === 'student') {
             console.log(`[GetCurrentUser] Querying student table`);
             const [students] = await db.query(
-                `SELECT s.id, s.name, s.dept_id, d.name as dept_name, au.email 
-                    FROM students s LEFT JOIN departments d ON s.dept_id = d.id 
+                `SELECT s.id, s.name, au.email 
+                    FROM students s
                     JOIN auth_users au ON s.id = au.id 
                     WHERE s.id = ?`,
                 [userId]
@@ -201,9 +201,10 @@ const getCurrentUser = async (req, res) => {
         } else if (role === 'teacher') {
             console.log(`[GetCurrentUser] Querying teacher table`);
             const [teachers] = await db.query(
-                `SELECT t.id, t.name, t.dept_id, d.name as dept_name, au.email 
-                    FROM teachers t LEFT JOIN departments d ON t.dept_id = d.id 
-                    JOIN auth_users au ON t.id = au.id WHERE t.id = ?`,
+                `SELECT t.id, t.name, au.email 
+                    FROM teachers t 
+                    JOIN auth_users au ON t.id = au.id 
+                    WHERE t.id = ?`,
                 [userId]
             );
             userDetails = teachers[0];

@@ -5,11 +5,14 @@ import { useAuth } from '../context/AuthContext';
 import { departmentAPI } from '../services/api';
 import '../styles/auth.css';
 import loginIllustration from "../assets/illustrations/LoginIllustration.jpg"
+import visibilityIcon from "../assets/icons/visibility.svg"
+import visibilityOffIcon from "../assets/icons/visibilityOff.svg"
 
 const Register = () => {
   const navigate = useNavigate();
   const { register } = useAuth();
   const [departments, setDepartments] = useState([]);
+  const [deptLoading, setDeptLoading] = useState(true)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -19,10 +22,7 @@ const Register = () => {
     dept_id: ''
   });
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    fetchDepartments();
-  }, []);
+  const [visibility, setVisibility] = useState(false)
 
   const fetchDepartments = async () => {
     try {
@@ -33,8 +33,13 @@ const Register = () => {
     } catch (err) {
       console.error('[Register] Failed to load departments:', err.message);
       toast.error('Failed to load departments');
+    } finally {
+      setDeptLoading(false)
     }
   };
+  useEffect(() => {
+    fetchDepartments()
+  }, []);
 
   const handleChange = (e) => {
     setFormData({
@@ -143,37 +148,47 @@ const Register = () => {
           </div>
 
           {(formData.role === 'student' || formData.role === 'teacher') && (
-            <div className="form-group">
-              <label htmlFor="dept_id" className="form-label">Department (Optional)</label>
-              <select
-                id="dept_id"
-                name="dept_id"
-                value={formData.dept_id}
-                onChange={handleChange}
-                className="form-input"
-              >
-                <option value="">Select Department</option>
-                {departments.map((dept) => (
-                  <option key={dept.id} value={dept.id}>
-                    {dept.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            deptLoading ? (
+              <p className="form-group">Departments are loading...</p>
+            ) : (
+              <div className="form-group">
+                <label htmlFor="dept_id" className="form-label">Department (Optional)</label>
+                <select
+                  id="dept_id"
+                  name="dept_id"
+                  value={formData.dept_id}
+                  onChange={handleChange}
+                  className="form-input"
+                >
+                  <option value="">Select Department</option>
+                  {departments.map((dept) => (
+                    <option key={dept.id} value={dept.id}>
+                      {dept.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )
           )}
 
           <div className="form-group">
             <label htmlFor="password" className="form-label">Password</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              className="form-input"
-              placeholder="Enter your password"
-              />
+            <div className="pwd-input">
+              <input
+                type={visibility ? "text": "password"}
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                className="form-input"
+                placeholder="Enter your password"
+                />
+              <img src={visibility ? visibilityIcon : visibilityOffIcon}
+                onClick={()=>setVisibility(!visibility)}
+                alt="show/hide password"
+                className='visibility-icon'/>
+            </div>
           </div>
 
           <div className="form-group">

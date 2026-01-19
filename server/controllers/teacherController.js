@@ -2,22 +2,14 @@ const db = require("../config/db.js");
 
 // Get all teachers
 const getAllTeachers = async (req, res) => {
-    const { dept_id } = req.query;
-    console.log(`[GetAllTeachers] Fetching teachers - Filter: dept_id=${dept_id || 'none'}`);
+    console.log(`[GetAllTeachers] Fetching teachers`);
     try {
         let query = `SELECT t.id, t.name, t.dept_id, d.name as dept_name, au.email, t.created_at
                     FROM teachers t 
                     LEFT JOIN departments d ON t.dept_id = d.id
                     JOIN auth_users au ON au.id = t.id`;
-        let params = [];
-
-        if (dept_id) {
-            query += " WHERE t.dept_id = ?";
-            params.push(dept_id);
-            console.log(`[GetAllTeachers] Filtering by department ID: ${dept_id}`);
-        }
-
-        const [data] = await db.query(query, params);
+        
+        const [data] = await db.query(query);
         console.log(`[GetAllTeachers] Success - Found ${data.length} teachers`);
         res.status(200).json({
             success: true,
