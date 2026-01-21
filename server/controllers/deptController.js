@@ -3,7 +3,7 @@ const db = require("../config/db.js");
 const getAllDept = async (req, res) => {
     console.log(`[GetAllDept] Fetching all departments`);
     try {
-        const query = "SELECT * FROM departments";
+        const query = "SELECT * FROM departments ORDER BY name ASC";
         const [data] = await db.query(query);
         console.log(`[GetAllDept] Success - Found ${data.length} departments`);
         res.status(200).json({
@@ -18,28 +18,86 @@ const getAllDept = async (req, res) => {
     }
 };
 
-const getDept = async (req, res) => {
+const getDeptById = async (req, res) => {
     const { id } = req.params;
-    console.log(`[GetDept] Fetching department - ID: ${id}`);
+    console.log(`[GetDeptById] Fetching department - ID: ${id}`);
     try {
-        const query = "SELECT * FROM departments WHERE id = ?";
+        const query = `SELECT * FROM departments WHERE id = ?`;
         const [data] = await db.query(query, [id]);
         
         if (data.length === 0) {
-            console.log(`[GetDept] Department not found - ID: ${id}`);
+            console.log(`[GetDeptById] Department not found - ID: ${id}`);
             return res.status(404).json({ success: false, message: "Department not found" });
         }
 
-        console.log(`[GetDept] Success - Department found: ${data[0].name}`);
+        console.log(`[GetDeptById] Success - Department found: ${data[0].name}`);
         res.status(200).json({
             success: true,
             message: "Fetched department",
             data: data[0]
         });
     } catch (error) {
-        console.error(`[GetDept] Error fetching department:`, error.message);
-        console.error(`[GetDept] Stack:`, error.stack);
+        console.error(`[GetDeptById] Error fetching department:`, error.message);
+        console.error(`[GetDeptById] Stack:`, error.stack);
         res.status(500).json({ success: false, message: "Failed to fetch department - Internal Server Error" });
+    }
+};
+
+// Get all users (students + teachers) in a department
+const getUsersInDept = async (req, res) => {
+    const dept_id = req.params.id;
+    console.log(`[GetUsersInDept] Fetching users in department - ID: ${dept_id}`);
+    
+    try {
+        const query = `
+            SELECT id, name, 'student' as role, created_at 
+            FROM students WHERE dept_id = ?
+            UNION ALL
+            SELECT id, name, 'teacher' as role, created_at 
+            FROM teachers WHERE dept_id = ?
+            ORDER BY role, name ASC
+        `;
+        const [data] = await db.query(query, [dept_id, dept_id]);
+        console.log(`[GetUsersInDept] Success - Found ${data.length} users`);
+
+        res.status(200).json({
+            success: true,
+            message: "Fetched users in department",
+            data: data
+        });
+    } catch (error) {
+        console.error(`[GetUsersInDept] Error fetching users:`, error.message);
+        console.error(`[GetUsersInDept] Stack:`, error.stack);
+        res.status(500).json({ success: false, message: "Failed to fetch users - Internal Server Error" });
+    }
+};
+
+// Get all courses in a department
+const getCoursesInDept = async (req, res) => {
+    const { id } = req.params;
+    console.log(`[GetCoursesInDept] Fetching courses in department - ID: ${id}`);
+    
+    try {
+        const query = `
+            SELECT c.*, t.name as teacher_name,
+                   (SELECT COUNT(*) FROM enrollments e WHERE e.course_id = c.id) as student_count
+            FROM courses c
+            LEFT JOIN teachers t ON c.teacher_id = t.id
+            WHERE c.dept_id = ?
+            ORDER BY c.name ASC
+        `;
+        const [data] = await db.query(query, [id]);
+        console.log(`[GetCoursesInDept] Success - Found ${data.length} courses`);
+
+        res.status(200).json({
+            success: true,
+            message: "Fetched courses in department",
+            data: data
+        });
+    } catch (error) {
+        console.error(`[GetCoursesInDept] Error fetching courses:`, error.message);
+        console.error(`[GetCoursesInDept] Stack:`, error.stack);
+        res.status(500).json({ success: false, message: "Failed to fetch courses - Internal Server Error" });
     }
 };
 
@@ -131,7 +189,9 @@ const deleteDept = async (req, res) => {
 
 module.exports = {
     getAllDept,
-    getDept,
+    getDeptById,
+    getUsersInDept,
+    getCoursesInDept,
     addDept,
     updateDept,
     deleteDept

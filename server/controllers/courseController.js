@@ -5,9 +5,10 @@ const getCourses = async (req, res) => {
   console.log(`[GetCourses] Fetching courses`);
 
   try {
-    let query = `SELECT c.*, d.name as dept_name, t.name as teacher_name 
+    let query = `SELECT c.*, d.name as dept_name, t.name as teacher_name
                   FROM courses c LEFT JOIN departments d ON c.dept_id = d.id 
-                  LEFT JOIN teachers t ON c.teacher_id = t.id`;
+                  LEFT JOIN teachers t ON c.teacher_id = t.id
+                  ORDER BY c.name ASC`;
     const [rows] = await db.query(query);
     console.log(`[GetCourses] Success - Found ${rows.length} courses`);
 
@@ -22,6 +23,30 @@ const getCourses = async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to fetch courses - Internal Server Error" });
   }
 };
+// Get all courses with EnrollmentCount 
+const getCoursesWithStudCount = async (req, res) => {
+  console.log(`[getCoursesWithStudCount] Fetching courses`);
+
+  try {
+    let query = `SELECT c.*, d.name as dept_name, t.name as teacher_name,
+                  (SELECT COUNT(*) FROM enrollments e WHERE e.course_id = c.id ) as student_count
+                  FROM courses c LEFT JOIN departments d ON c.dept_id = d.id 
+                  LEFT JOIN teachers t ON c.teacher_id = t.id
+                  ORDER BY c.name ASC`;
+    const [rows] = await db.query(query);
+    console.log(`[getCoursesWithStudCount] Success - Found ${rows.length} courses`);
+
+    return res.status(200).json({
+      success: true,
+      message: "Fetched all courses",
+      data: rows
+    });
+  } catch (error) {
+    console.error(`[getCoursesWithStudCount] Error fetching courses:`, error.message);
+    console.error(`[getCoursesWithStudCount] Stack:`, error.stack);
+    res.status(500).json({ success: false, message: "Failed to fetch courses - Internal Server Error" });
+  }
+}
 
 // Get specific course
 const getCourse = async (req, res) => {
@@ -170,10 +195,74 @@ const deleteCourse = async (req, res) => {
     }
 };
 
+// Get students enrolled in a specific course
+const getStudentsInCourse = async (req, res) => {
+    const courseId = req.params.courseid;
+    console.log(`[GetStudentsInCourse] Fetching students in course - Course ID: ${courseId}`);
+
+    try {
+        const query = `
+            SELECT s.id, s.name, d.name as dept_name, e.enrolled_at
+            FROM enrollments e
+            JOIN students s ON e.student_id = s.id
+            LEFT JOIN departments d ON s.dept_id = d.id
+            WHERE e.course_id = ?
+            ORDER BY e.enrolled_at DESC
+        `;
+        const [data] = await db.query(query, [courseId]);
+        console.log(`[GetStudentsInCourse] Success - Found ${data.length} students`);
+
+        res.status(200).json({
+            success: true,
+            message: "Fetched students in course",
+            data: data
+        });
+    } catch (error) {
+        console.error(`[GetStudentsInCourse] Error fetching students:`, error.message);
+        console.error(`[GetStudentsInCourse] Stack:`, error.stack);
+        res.status(500).json({ success: false, message: "Failed to fetch students - Internal Server Error" });
+    }
+};
+
+// Get students NOT enrolled in a specific course
+const getUnenrolledStudents = async (req, res) => {
+    const { courseid } = req.params;
+    console.log(`[GetUnenrolledStudents] Fetching students not enrolled in course - Course ID: ${courseid}`);
+
+    try {
+        const query = `
+            SELECT s.id, s.name, d.name as dept_name, s.created_at
+            FROM students s
+            LEFT JOIN departments d ON s.dept_id = d.id
+            WHERE s.id NOT IN (
+                SELECT student_id 
+                FROM enrollments 
+                WHERE course_id = ?
+            )
+            ORDER BY s.name ASC
+        `;
+        const [data] = await db.query(query, [courseid]);
+        console.log(`[GetUnenrolledStudents] Success - Found ${data.length} unenrolled students`);
+
+        res.status(200).json({
+            success: true,
+            message: "Fetched unenrolled students",
+            data: data
+        });
+    } catch (error) {
+        console.error(`[GetUnenrolledStudents] Error fetching students:`, error.message);
+        console.error(`[GetUnenrolledStudents] Stack:`, error.stack);
+        res.status(500).json({ success: false, message: "Failed to fetch students - Internal Server Error" });
+    }
+};
+
 module.exports = {
     getCourses,
+    getCoursesWithStudCount,
     getCourse,
     addCourse,
     updateCourse,
-    deleteCourse
+    deleteCourse,
+    getStudentsInCourse,
+    getUnenrolledStudents
 };

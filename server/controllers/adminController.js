@@ -5,7 +5,8 @@ const getAllAdmins = async (req, res) => {
     console.log(`[GetAllAdmins] Fetching all admins`);
     try {
         const query = `SELECT a.id, a.name, au.email, a.created_at 
-                        FROM admins a JOIN auth_users au ON a.id = au.id`;
+                        FROM admins a JOIN auth_users au ON a.auth_id = au.id
+                        ORDER BY a.name ASC`;
         const [data] = await db.query(query);
         console.log(`[GetAllAdmins] Found ${data.length} admins`);
         
@@ -27,7 +28,7 @@ const getAdmin = async (req, res) => {
     console.log(`[GetAdmin] Fetching admin - ID: ${id}`);
     try {
         const query = `SELECT a.id, a.name, au.email, a.created_at 
-                        FROM admins a JOIN auth_users au ON a.id = au.id 
+                        FROM admins a JOIN auth_users au ON a.auth_id = au.id 
                         WHERE a.id = ?`;
         const [data] = await db.query(query, [id]);
         
@@ -55,7 +56,7 @@ const getMyProfile = async (req, res) => {
     console.log(`[GetMyProfile-Admin] Fetching profile - Admin ID: ${admin_id}`);
     try {
         const query = `SELECT a.id, a.name, au.email, a.created_at 
-                        FROM admins a JOIN auth_users au ON a.id = au.id 
+                        FROM admins a JOIN auth_users au ON a.auth_id = au.id 
                         WHERE a.id = ?`;
         const [data] = await db.query(query, [admin_id]);
         
@@ -89,7 +90,7 @@ const updateAdmin = async (req, res) => {
             return res.status(400).json({ success: false, message: "Name is required" });
         }
 
-        const [result] = await db.query("UPDATE admins SET name = ? WHERE id = ?", [name, admin_id]);
+        const [result] = await db.query("UPDATE admins SET name = ? WHERE auth_id = ?", [name, admin_id]);
         
         if (result.affectedRows === 0) {
             console.error(`[UpdateAdmin] Admin not found - ID: ${admin_id}`);

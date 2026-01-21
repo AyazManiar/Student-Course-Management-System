@@ -39,21 +39,21 @@ const register = async (req, res) => {
         if (role === 'student') {
             console.log(`[Register] Creating student record - ID: ${userId}`);
             await db.query(
-                "INSERT INTO students (id, name, dept_id) VALUES (?, ?, ?)",
+                "INSERT INTO students (auth_id, name, dept_id) VALUES (?, ?, ?)",
                 [userId, name, dept_id || null]
             );
             console.log(`[Register] Student record created`);
         } else if (role === 'teacher') {
             console.log(`[Register] Creating teacher record - ID: ${userId}`);
             await db.query(
-                "INSERT INTO teachers (id, name, dept_id) VALUES (?, ?, ?)",
+                "INSERT INTO teachers (auth_id, name, dept_id) VALUES (?, ?, ?)",
                 [userId, name, dept_id || null]
             );
             console.log(`[Register] Teacher record created`);
         } else if (role === 'admin') {
             console.log(`[Register] Creating admin record - ID: ${userId}`);
             await db.query(
-                "INSERT INTO admins (id, name) VALUES (?, ?)",
+                "INSERT INTO admins (auth_id, name) VALUES (?, ?)",
                 [userId, name]
             );
             console.log(`[Register] Admin record created`);
@@ -122,13 +122,13 @@ const login = async (req, res) => {
         let userDetails;
         console.log(`[Login] Fetching ${user.role} details`);
         if (user.role === 'student') {
-            const [students] = await db.query("SELECT name FROM students WHERE id = ?", [user.id]);
+            const [students] = await db.query("SELECT name FROM students WHERE auth_id = ?", [user.id]);
             userDetails = students[0];
         } else if (user.role === 'teacher') {
-            const [teachers] = await db.query("SELECT name FROM teachers WHERE id = ?", [user.id]);
+            const [teachers] = await db.query("SELECT name FROM teachers WHERE auth_id = ?", [user.id]);
             userDetails = teachers[0];
         } else if (user.role === 'admin') {
-            const [admins] = await db.query("SELECT name FROM admins WHERE id = ?", [user.id]);
+            const [admins] = await db.query("SELECT name FROM admins WHERE auth_id = ?", [user.id]);
             userDetails = admins[0];
         }
 
@@ -193,8 +193,8 @@ const getCurrentUser = async (req, res) => {
             const [students] = await db.query(
                 `SELECT s.id, s.name, au.email 
                     FROM students s
-                    JOIN auth_users au ON s.id = au.id 
-                    WHERE s.id = ?`,
+                    JOIN auth_users au ON s.auth_id = au.id 
+                    WHERE s.auth_id = ?`,
                 [userId]
             );
             userDetails = students[0];
@@ -203,15 +203,15 @@ const getCurrentUser = async (req, res) => {
             const [teachers] = await db.query(
                 `SELECT t.id, t.name, au.email 
                     FROM teachers t 
-                    JOIN auth_users au ON t.id = au.id 
-                    WHERE t.id = ?`,
+                    JOIN auth_users au ON t.auth_id = au.id 
+                    WHERE t.auth_id = ?`,
                 [userId]
             );
             userDetails = teachers[0];
         } else if (role === 'admin') {
             console.log(`[GetCurrentUser] Querying admin table`);
             const [admins] = await db.query(
-                "SELECT a.id, a.name, au.email FROM admins a JOIN auth_users au ON a.id = au.id WHERE a.id = ?",
+                "SELECT a.id, a.name, au.email FROM admins a JOIN auth_users au ON a.auth_id = au.id WHERE a.auth_id = ?",
                 [userId]
             );
             userDetails = admins[0];

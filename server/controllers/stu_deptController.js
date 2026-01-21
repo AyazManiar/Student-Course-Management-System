@@ -1,5 +1,17 @@
 const db = require("../config/db.js");
 
+// Get all students in specific dept
+const getAllStudentsInDept = async (req, res) => {
+    const { dept_id } = req.params;
+    try {
+        const [data] = await db.query("SELECT s.id, s.name, s.created_at")
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+}
+
+
 const addStuDept = async (req, res) => {
     const stu_id = req.user.id;
     const { dept_id } = req.body;

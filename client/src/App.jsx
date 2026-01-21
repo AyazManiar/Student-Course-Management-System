@@ -19,9 +19,14 @@ import TeacherCourses from './pages/teacher/TeacherCourses';
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminStudents from './pages/admin/AdminStudents';
+import AdminStudentDetails from './pages/admin/AdminStudentDetails';
 import AdminTeachers from './pages/admin/AdminTeachers';
 import AdminCourses from './pages/admin/AdminCourses';
+import AdminCourseDetails from './pages/admin/AdminCourseDetails';
+import AdminEnrollStudents from './pages/admin/AdminEnrollStudents';
+import AdminUnenrollStudents from './pages/admin/AdminUnenrollStudents';
 import AdminDepartments from './pages/admin/AdminDepartments';
+import AdminDepartmentDetails from './pages/admin/AdminDepartmentDetails';
 import AdminEnrollments from './pages/admin/AdminEnrollments';
 
 // Home redirect component
@@ -139,6 +144,16 @@ export const router = createBrowserRouter([
     )
   },
   {
+    path: '/admin/students/:id',
+    element: (
+      <ProtectedRoute allowedRoles={['admin']}>
+        <Layout>
+          <AdminStudentDetails />
+        </Layout>
+      </ProtectedRoute>
+    )
+  },
+  {
     path: '/admin/teachers',
     element: (
       <ProtectedRoute allowedRoles={['admin']}>
@@ -159,11 +174,51 @@ export const router = createBrowserRouter([
     )
   },
   {
+    path: '/admin/courses/:id',
+    element: (
+      <ProtectedRoute allowedRoles={['admin']}>
+        <Layout>
+          <AdminCourseDetails />
+        </Layout>
+      </ProtectedRoute>
+    )
+  },
+  {
+    path: '/admin/courses/:id/enroll',
+    element: (
+      <ProtectedRoute allowedRoles={['admin']}>
+        <Layout>
+          <AdminEnrollStudents />
+        </Layout>
+      </ProtectedRoute>
+    )
+  },
+  {
+    path: '/admin/courses/:id/unenroll',
+    element: (
+      <ProtectedRoute allowedRoles={['admin']}>
+        <Layout>
+          <AdminUnenrollStudents />
+        </Layout>
+      </ProtectedRoute>
+    )
+  },
+  {
     path: '/admin/departments',
     element: (
       <ProtectedRoute allowedRoles={['admin']}>
         <Layout>
-          <AdminDepartments />
+          <AdminDepartments  />
+        </Layout>
+      </ProtectedRoute>
+    )
+  },
+  {
+    path: "/admin/departments/:id",
+    element: (
+      <ProtectedRoute allowedRoles={['admin']}>
+        <Layout>
+          <AdminDepartmentDetails />
         </Layout>
       </ProtectedRoute>
     )

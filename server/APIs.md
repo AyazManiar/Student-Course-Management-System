@@ -107,7 +107,7 @@ GET /auth/me
 SELECT s.*, d.name as dept_name, au.email 
 FROM students s 
 LEFT JOIN departments d ON s.dept_id = d.id 
-JOIN auth_users au ON s.id = au.id 
+JOIN auth_users au ON s.auth_id = au.id 
 WHERE s.id = ?
 ```
 
@@ -234,7 +234,7 @@ GET /teachers
 SELECT t.id, t.name, t.dept_id, d.name as dept_name, au.email 
 FROM teachers t 
 LEFT JOIN departments d ON t.dept_id = d.id 
-JOIN auth_users au ON t.id = au.id
+JOIN auth_users au ON t.auth_id = au.id
 ```
 
 ---
@@ -320,7 +320,7 @@ GET /admins
 ```sql
 SELECT a.id, a.name, au.email, a.created_at 
 FROM admins a 
-JOIN auth_users au ON a.id = au.id
+JOIN auth_users au ON a.auth_id = au.id
 ```
 
 ---

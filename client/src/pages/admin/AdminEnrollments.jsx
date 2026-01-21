@@ -89,7 +89,7 @@ const AdminEnrollments = () => {
     try {
       console.log('[AdminEnrollments] Unenrolling enrollment ID:', enrollId);
       const response = await enrollmentAPI.unenrollOther({ enrollId });
-      setEnrollments((prev) => prev.filter((u) => u.id != enrollId));
+      setEnrollments((prev) => prev.filter((u) => u.enroll_id != enrollId));
       console.log('[AdminEnrollments] Student unenrolled successfully');
       toast.success('Student unenrolled successfully!');
     } catch (error) {
@@ -133,7 +133,7 @@ const AdminEnrollments = () => {
             <table className="table">
               <thead className="table-head">
                 <tr>
-                  <th className="table-header">ID</th>
+                  <th className="table-header">ENROLL ID</th>
                   <th className="table-header">STUDENT NAME</th>
                   <th className="table-header">COURSE NAME</th>
                   <th className="table-header">ENROLLMENT DATE</th>
@@ -144,16 +144,16 @@ const AdminEnrollments = () => {
                 {currentEnrollments && currentEnrollments.length > 0 ? (
                   currentEnrollments.map((enrollment) => (
                     <tr key={enrollment.id} className="table-row">
-                      <td className="table-cell">{enrollment.id}</td>
+                      <td className="table-cell">{enrollment.enroll_id}</td>
                       <td className="table-cell">{enrollment.student_name}</td>
                       <td className="table-cell">{enrollment.course_name}</td>
-                      <td className="table-cell">{new Date(enrollment.enrolled_at).toLocaleString()}</td>
+                      <td className="table-cell">{new Date(enrollment.enrolled_at).toLocaleDateString()}</td>
                       <td className="table-cell">
                         <button
                           className="btn btn-danger btn-sm"
                           onClick={(e) => {
                             e.stopPropagation();
-                            unEnrollStudent(enrollment.id);
+                            unEnrollStudent(enrollment.enroll_id);
                           }}
                         >
                           <svg

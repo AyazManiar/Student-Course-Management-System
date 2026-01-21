@@ -13,6 +13,10 @@ router.post("/", authMiddleware, authorizeRoles("admin"), addStudent);
 // GET: /api/students/me/profile - Get logged-in student's profile
 router.get("/me/profile", authMiddleware, authorizeRoles("student"), getMyProfile);
 
+// GET: /api/students/:id - Get specific student by ID
+router.get("/:id", authMiddleware, authorizeRoles("admin"), getStudent);
+
+
 // PUT: /api/students/me - Update logged-in student's profile
 router.put("/me", authMiddleware, authorizeRoles("student"), updateStudent);
 
@@ -20,8 +24,5 @@ router.put("/me", authMiddleware, authorizeRoles("student"), updateStudent);
 router.delete("/me", authMiddleware, authorizeRoles("student"), deleteStudent);
 
 router.delete("/remove", authMiddleware, authorizeRoles("admin"), removeStudent)
-
-// GET: /api/students/:id - Get specific student by ID
-router.get("/:id", authMiddleware, getStudent);
 
 module.exports = router;

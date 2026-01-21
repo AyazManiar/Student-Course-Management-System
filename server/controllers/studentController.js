@@ -8,7 +8,8 @@ const getAllStudents = async (req, res) => {
         let query = `SELECT s.id, s.name, s.dept_id, d.name as dept_name, au.created_at 
                     FROM students s 
                     LEFT JOIN departments d ON s.dept_id = d.id
-                    JOIN auth_users au ON au.id = s.id`;
+                    JOIN auth_users au ON au.id = s.auth_id
+                    ORDER BY s.name ASC`;
 
         const [data] = await db.query(query);
         console.log(`[GetAllStudents] Success - Found ${data.length} students`);
@@ -26,17 +27,18 @@ const getAllStudents = async (req, res) => {
 
 // Get specific student
 const getStudent = async (req, res) => {
-    const { id } = req.params;
-    console.log(`[GetStudent] Fetching student - ID: ${id}`);
+    const userid = req.params.id;
+    console.log(`[GetStudent] Fetching another(by admin) student - ID: ${userid}`);
     try {
         const query = `SELECT s.id, s.name, s.dept_id, d.name as dept_name
                         FROM students s LEFT JOIN departments d 
                         ON s.dept_id = d.id 
                         WHERE s.id = ?`;
-        const [data] = await db.query(query, [id]);
+        const [data] = await db.query(query, [userid]);
+        
         
         if (data.length === 0) {
-            console.log(`[GetStudent] Student not found - ID: ${id}`);
+            console.log(`[GetStudent] Student not found - ID: ${userid}`);
             return res.status(404).json({ success: false, message: "Student not found" });
         }
 
@@ -60,8 +62,8 @@ const getMyProfile = async (req, res) => {
     try {
         const query = `SELECT s.id, s.name, s.dept_id, d.name as dept_name, au.email
                         FROM students s LEFT JOIN departments d ON s.dept_id = d.id
-                        JOIN auth_users au ON au.id = s.id
-                        WHERE s.id = ?`;
+                        JOIN auth_users au ON au.id = s.auth_id
+                        WHERE s.auth_id = ?`;
         const [data] = await db.query(query, [stu_id]);
         
         if (data.length === 0) {
@@ -129,7 +131,7 @@ const addStudent = async (req, res) => {
         // Insert into students table
         console.log(`[AddStudent] Creating student record`);
         await db.query(
-            "INSERT INTO students (id, name, dept_id) VALUES (?, ?, ?)",
+            "INSERT INTO students (auth_id, name, dept_id) VALUES (?, ?, ?)",
             [studentId, name, dept_id || null]
         );
 
@@ -175,7 +177,7 @@ const updateStudent = async (req, res) => {
             return res.status(400).json({ success: false, message: "No fields to update" });
         }
 
-        query += updates.join(",") + " WHERE id = ?";
+        query += updates.join(",") + " WHERE auth_id = ?";
         params.push(stu_id);
 
         const [result] = await db.query(query, params);

@@ -7,7 +7,8 @@ const getAllTeachers = async (req, res) => {
         let query = `SELECT t.id, t.name, t.dept_id, d.name as dept_name, au.email, t.created_at
                     FROM teachers t 
                     LEFT JOIN departments d ON t.dept_id = d.id
-                    JOIN auth_users au ON au.id = t.id`;
+                    JOIN auth_users au ON au.id = t.auth_id
+                    ORDER BY t.name ASC`;
         
         const [data] = await db.query(query);
         console.log(`[GetAllTeachers] Success - Found ${data.length} teachers`);
@@ -58,8 +59,8 @@ const getMyProfile = async (req, res) => {
     try {
         const query = `SELECT t.id, t.name, t.dept_id, d.name as dept_name, au.email
                         FROM teachers t LEFT JOIN departments d ON t.dept_id = d.id
-                        JOIN auth_users au ON au.id = t.id
-                        WHERE t.id = ?`;
+                        JOIN auth_users au ON au.id = t.auth_id
+                        WHERE t.auth_id = ?`;
         const [data] = await db.query(query, [teacher_id]);
         
         if (data.length === 0) {
@@ -107,7 +108,7 @@ const updateTeacher = async (req, res) => {
             return res.status(400).json({ success: false, message: "No fields to update" });
         }
 
-        query += updates.join(",") + " WHERE id = ?";
+        query += updates.join(",") + " WHERE auth_id = ?";
         params.push(teacher_id);
 
         const [result] = await db.query(query, params);

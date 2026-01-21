@@ -5,7 +5,7 @@ const getAllEnrollments = async (req, res) => {
     console.log(`[GetAllEnrollments] Fetching all enrollments`);
     try {
         const query = `
-            SELECT e.id, e.student_id, s.name as student_name, 
+            SELECT e.id as enroll_id, e.student_id, s.name as student_name, 
             e.course_id, c.name as course_name, e.enrolled_at
             FROM enrollments e
             JOIN students s ON e.student_id = s.id
@@ -56,6 +56,37 @@ const getEnrolledCourses = async (req, res) => {
     }
 };
 
+// Get Enrolled courses for specific student
+// Get enrolled courses for logged-in student
+const getEnrolledCoursesOfSpecificStudent = async (req, res) => {
+    const student_id = req.params.id;
+    console.log(`[getEnrolledCoursesOfSpecificStudent] Fetching enrolled courses - Student ID: ${student_id}`);
+
+    try {
+        const query = `
+            SELECT c.*, d.name as dept_name, t.name as teacher_name, e.enrolled_at 
+            FROM enrollments e
+            JOIN courses c ON e.course_id = c.id
+            LEFT JOIN departments d ON c.dept_id = d.id
+            LEFT JOIN teachers t ON c.teacher_id = t.id
+            WHERE e.student_id = ?
+        `;
+        const [data] = await db.query(query, [student_id]);
+        console.log(`[getEnrolledCoursesOfSpecificStudent] Success - Found ${data.length} enrolled courses`);
+
+        res.status(200).json({
+            success: true,
+            message: "Fetched enrolled courses for specific student",
+            data: data
+        });
+    } catch (error) {
+        console.error(`[getEnrolledCoursesOfSpecificStudent] Error fetching enrollments:`, error.message);
+        console.error(`[getEnrolledCoursesOfSpecificStudent] Stack:`, error.stack);
+        res.status(500).json({ success: false, message: "Failed to fetch enrolled courses - Internal Server Error" });
+    }
+};
+
+
 // Enroll in a course
 const enrollInCourse = async (req, res) => {
     const student_id = req.user.id;
@@ -101,6 +132,8 @@ const enrollInCourse = async (req, res) => {
         res.status(500).json({ success: false, message: "Failed to enroll in course - Internal Server Error" });
     }
 };
+
+
 // Enroll someone else in course (Admin Only)
 // POST: /api/enrollments/enroll
 const enrollOtherInCourse = async (req, res)=> {
@@ -203,11 +236,44 @@ const unEnrollOtherFromCourse = async (req, res) => {
     }
 }
 
+// Bulk unenroll students from course (Admin only)
+const unenrollOtherBulk = async (req, res) => {
+    const { student_id, course_id } = req.body;
+    console.log(`[UnenrollOtherBulk] Admin unenrolling - Student ID: ${student_id}, Course ID: ${course_id}`);
+    
+    try {
+        if (!student_id || !course_id) {
+            console.log(`[UnenrollOtherBulk] Validation failed - Student ID and Course ID required`);
+            return res.status(400).json({ success: false, message: "Student ID and Course ID are required" });
+        }
+
+        const query = "DELETE FROM enrollments WHERE student_id = ? AND course_id = ?";
+        const [data] = await db.query(query, [student_id, course_id]);
+
+        if (data.affectedRows === 0) {
+            console.log(`[UnenrollOtherBulk] Enrollment not found - Student: ${student_id}, Course: ${course_id}`);
+            return res.status(404).json({ success: false, message: "Enrollment not found" });
+        }
+
+        console.log(`[UnenrollOtherBulk] Success - Student ${student_id} unenrolled from course ${course_id}`);
+        res.status(200).json({
+            success: true,
+            message: "Unenrolled from course successfully"
+        });
+    } catch (error) {
+        console.error(`[UnenrollOtherBulk] Error unenrolling student:`, error.message);
+        console.error(`[UnenrollOtherBulk] Stack:`, error.stack);
+        res.status(500).json({ success: false, message: "Failed to unenroll - Internal Server Error" });
+    }
+};
+
 module.exports = {
     getAllEnrollments,
     getEnrolledCourses,
+    getEnrolledCoursesOfSpecificStudent,
     enrollInCourse,
     enrollOtherInCourse,
     unenrollFromCourse,
-    unEnrollOtherFromCourse  
+    unEnrollOtherFromCourse,
+    unenrollOtherBulk
 };

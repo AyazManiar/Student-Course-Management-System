@@ -53,7 +53,7 @@ const seedData = async () => {
                 [admin.email, admin.password]
             );
             await db.query(
-                "INSERT INTO admins (id, name) VALUES (?, ?)",
+                "INSERT INTO admins (auth_id, name) VALUES (?, ?)",
                 [authResult.insertId, admin.name]
             );
         }
@@ -76,7 +76,7 @@ const seedData = async () => {
                 [teacher.email, teacher.password]
             );
             await db.query(
-                "INSERT INTO teachers (id, name, dept_id) VALUES (?, ?, ?)",
+                "INSERT INTO teachers (auth_id, name, dept_id) VALUES (?, ?, ?)",
                 [authResult.insertId, teacher.name, teacher.dept_id]
             );
         }
@@ -114,7 +114,7 @@ const seedData = async () => {
                 [student.email, student.password]
             );
             await db.query(
-                "INSERT INTO students (id, name, dept_id) VALUES (?, ?, ?)",
+                "INSERT INTO students (auth_id, name, dept_id) VALUES (?, ?, ?)",
                 [authResult.insertId, student.name, student.dept_id]
             );
         }

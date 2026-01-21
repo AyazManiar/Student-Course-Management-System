@@ -5,8 +5,11 @@ import Card from '../../components/common/Card';
 import Modal from '../../components/common/Modal';
 import Button from '../../components/common/Button';
 import '../../styles/table.css';
+import { useNavigate } from 'react-router-dom';
 
 const AdminDepartments = () => {
+  const navigate = useNavigate()
+
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -141,7 +144,8 @@ const AdminDepartments = () => {
               <tbody className="table-body">
                 {currentDepartments && currentDepartments.length > 0 ? (
                   currentDepartments.map((dept) => (
-                    <tr key={dept.id} className="table-row">
+                    <tr key={dept.id} className="table-row" 
+                      onClick={()=>navigate(`/admin/departments/${dept.id}`)}>
                       <td className="table-cell">{dept.id}</td>
                       <td className="table-cell">{dept.name}</td>
                       <td className="table-cell">{new Date(dept.created_at).toLocaleDateString()}</td>

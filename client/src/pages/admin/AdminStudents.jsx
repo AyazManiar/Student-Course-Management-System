@@ -5,8 +5,10 @@ import Card from '../../components/common/Card';
 import Modal from '../../components/common/Modal';
 import Button from '../../components/common/Button';
 import '../../styles/table.css';
+import { useNavigate } from 'react-router-dom';
 
 const AdminStudents = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [students, setStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -54,8 +56,9 @@ const AdminStudents = () => {
   };
 
   const handleViewStudent = (student) => {
-    setSelectedStudent(student);
-    setShowModal(true);
+    navigate(`/admin/students/${student.id}`);
+    // setSelectedStudent(student);
+    // setShowModal(true);
   };
 
   const handleAddStudent = () => {

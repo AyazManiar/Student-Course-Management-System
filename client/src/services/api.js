@@ -57,7 +57,9 @@ export const studentAPI = {
     return apiCall(`/students`);
   },
   
-  getById: (id) => apiCall(`/students/${id}`),
+  getById: () => apiCall(`/students`),
+
+  getAnotherStudById: ({id}) => apiCall(`/students/${id}`),
   
   getMyProfile: () => apiCall('/students/me/profile'),
   
@@ -132,7 +134,11 @@ export const adminAPI = {
 export const departmentAPI = {
   getAll: () => apiCall('/departments'),
   
-  getById: (id) => apiCall(`/departments/${id}`),
+  getDeptById: (id) => apiCall(`/departments/${id}`),
+
+  getUsersInDept: (id) => apiCall(`/departments/${id}/users`),
+
+  getCoursesInDept: (id) => apiCall(`/departments/${id}/courses`),
   
   create: (data) => apiCall('/departments', {
     method: 'POST',
@@ -154,8 +160,15 @@ export const courseAPI = {
   getAll: () => {
     return apiCall(`/courses`);
   },
+  getAllWithStudCount: () => {
+    return apiCall(`/courses/withStudCount`);
+  },
   
   getById: (id) => apiCall(`/courses/${id}`),
+
+  getStudentsInCourse: (courseid) => apiCall(`/courses/${courseid}/students`),
+
+  getUnenrolledStudents: (courseid) => apiCall(`/courses/${courseid}/unenrolled-students`),
   
   create: (data) => apiCall('/courses', {
     method: 'POST',
@@ -177,6 +190,8 @@ export const enrollmentAPI = {
   getAll: () => apiCall('/enrollments'),
   
   getMyEnrolledCourses: () => apiCall('/enrollments/my-courses'),
+
+  getEnrolledCoursesOfSpecificStudent: ({id}) => apiCall(`/enrollments/student/${id}`),
   
   enroll: (data) => apiCall('/enrollments/enroll', {
     method: 'POST',
@@ -194,6 +209,11 @@ export const enrollmentAPI = {
   }),
   
   unenrollOther: (data) => apiCall('/enrollments/unenrollOther', {
+    method: 'DELETE',
+    body: JSON.stringify(data),
+  }),
+  
+  unenrollOtherBulk: (data) => apiCall('/enrollments/unenrollOtherBulk', {
     method: 'DELETE',
     body: JSON.stringify(data),
   }),

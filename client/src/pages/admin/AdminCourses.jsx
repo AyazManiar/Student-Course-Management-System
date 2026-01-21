@@ -4,9 +4,12 @@ import { courseAPI, departmentAPI, teacherAPI } from '../../services/api';
 import Card from '../../components/common/Card';
 import Modal from '../../components/common/Modal';
 import Button from '../../components/common/Button';
+import { useNavigate } from 'react-router-dom';
 import '../../styles/table.css';
+import "../../styles/courses.css"
 
 const AdminCourses = () => {
+  const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [teachers, setTeachers] = useState([]);
@@ -31,7 +34,7 @@ const AdminCourses = () => {
     try {
       console.log('[AdminCourses] Fetching courses data...');
       const [coursesRes, deptsRes, teachersRes] = await Promise.all([
-        courseAPI.getAll(),
+        courseAPI.getAllWithStudCount(),
         departmentAPI.getAll(),
         teacherAPI.getAll()
       ]);
@@ -168,17 +171,23 @@ const AdminCourses = () => {
                   <th className="table-header">DESCRIPTION</th>
                   <th className="table-header">DEPARTMENT</th>
                   <th className="table-header">TEACHER</th>
+                  <th className="table-header">STUDENT COUNT</th>
                   <th className="table-header">ACTIONS</th>
                 </tr>
               </thead>
               <tbody className="table-body">
                 {currentCourses && currentCourses.length > 0 ? (
                   currentCourses.map((course) => (
-                    <tr key={course.id} className="table-row">
+                    <tr 
+                      key={course.id} 
+                      className="table-row"
+                      onClick={() => navigate(`/admin/courses/${course.id}`)}
+                    >
                       <td className="table-cell">{course.name}</td>
                       <td className="table-cell">{course.description}</td>
                       <td className="table-cell">{course.dept_name || 'Not Assigned'}</td>
                       <td className="table-cell">{course.teacher_name || 'Not Assigned'}</td>
+                      <td className="table-cell">{course.student_count ?? 'Unknown'}</td>
                       <td className="table-cell">
                         <div className="action-buttons">
                           <button

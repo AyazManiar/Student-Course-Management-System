@@ -1,5 +1,5 @@
 const express = require("express");
-const { getAllDept, getDept, addDept, updateDept, deleteDept } = require("../controllers/deptController");
+const { getAllDept, getDeptById, getUsersInDept, getCoursesInDept, addDept, updateDept, deleteDept } = require("../controllers/deptController");
 const { authMiddleware, authorizeRoles } = require("../middleware/authMiddleware");
 
 const router = express.Router();
@@ -8,7 +8,13 @@ const router = express.Router();
 router.get("/", getAllDept);
 
 // GET: /api/departments/:id - Get specific department (Public - needed for registration)
-router.get("/:id", getDept);
+router.get("/:id", getDeptById);
+
+// GET: /api/departments/:id/users - Get all users (students + teachers) in department
+router.get("/:id/users", authMiddleware, authorizeRoles("admin"), getUsersInDept);
+
+// GET: /api/departments/:id/courses - Get all courses in department
+router.get("/:id/courses", authMiddleware, authorizeRoles("admin"), getCoursesInDept);
 
 // POST: /api/departments - Add new department (Admin only)
 router.post("/", authMiddleware, authorizeRoles("admin"), addDept);
